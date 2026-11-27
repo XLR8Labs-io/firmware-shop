@@ -11,7 +11,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -32,8 +31,12 @@ class AdminPanelProvider extends PanelProvider
             // No panel login page: admins sign in through the site's Fortify login,
             // so its two-factor challenge can't be bypassed.
             ->brandName(fn (): string => app(SiteSettings::class)->siteName())
+            ->brandLogo(asset('logos/logo-light-400.webp'))
+            ->darkModeBrandLogo(asset('logos/logo-dark-400.webp'))
+            ->brandLogoHeight('2.25rem')
+            ->favicon(asset('favicon.ico'))
             ->colors([
-                'primary' => Color::Zinc,
+                'primary' => '#0076d9',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

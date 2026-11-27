@@ -64,6 +64,15 @@ test('the form opens with the saved settings', function () {
         ]);
 });
 
+test('the site name starts as the name the site already shows', function () {
+    config(['app.name' => 'IT-Firmware.com']);
+
+    $this->actingAs(User::factory()->admin()->withTwoFactor()->create());
+
+    Livewire::test(ManageSiteSettings::class)
+        ->assertSchemaStateSet(['site_name' => 'IT-Firmware.com']);
+});
+
 test('invalid settings are rejected and nothing is saved', function (array $data, array $errors) {
     $this->actingAs(User::factory()->admin()->withTwoFactor()->create());
 

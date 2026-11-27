@@ -31,7 +31,9 @@
 
         <header class="border-b border-zinc-200 dark:border-zinc-700">
             <div class="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
-                <a href="{{ route('home') }}" class="text-base font-semibold" wire:navigate>{{ $siteName }}</a>
+                <a href="{{ route('home') }}" class="flex shrink-0 items-center" wire:navigate>
+                    <x-brand-logo class="h-10" :alt="$siteName" />
+                </a>
 
                 <flux:spacer />
 

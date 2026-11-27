@@ -2,7 +2,7 @@
 
 > Mobile firmware / flash-file / repair-solution download store.
 > Per-product pricing, wallet-based payments (bKash, Nagad, crypto USDT), files stored on Google Drive.
-> Working name: `{{SITE_NAME}}` (replace everywhere once decided).
+> Brand: **IT-Firmware.com** (it-firmware.com). The client's logos, icons and palette are in `public/` (see Deviations #18).
 > Plan written: 27 Nov 2026. Research data and sources are in the Appendix.
 
 ---
@@ -32,7 +32,7 @@ _(Claude Code: record changes to this plan here.)_
 7. **Download count (§4, §6.3):** counted once per user, per product, per 24 hours. Before, it was counted once per token, and every click created a new token, so repeated clicks inflated the count.
 8. **Filament version (§3):** checked on 27 Nov 2026. `filament/filament` v5.12 installs on Laravel 13 / PHP 8.5 with Livewire 4.4. The Livewire starter kit must therefore use Livewire 4.
 9. **Passkeys (§1):** the starter kit's Fortify setup also enables passkeys alongside email/password and TOTP 2FA. Kept as an optional extra sign-in method for customers. Admin panel access still requires confirmed TOTP 2FA (§9).
-10. **Branding (§1):** the store uses the client's own branding (name, logo, colours, favicon). No XLR8Labs marks appear on the public site or in the admin. The name stays `{{SITE_NAME}}` until the client supplies it.
+10. **Branding (§1):** the store uses the client's own branding (name, logo, colours, favicon). No XLR8Labs marks appear on the public site or in the admin. The brand is IT-Firmware.com (see #18).
 
 **27 Nov 2026: Phase 0.**
 
@@ -42,7 +42,11 @@ _(Claude Code: record changes to this plan here.)_
 14. **Header and footer (§5.1):** each piece arrives in the phase that builds what it points to. The search box comes in Phase 1, the wallet balance and "Add funds" in Phase 2, and the footer page links in Phase 6. The language switcher is left out until a second language exists. All interface text already goes through `__()`.
 15. **Users table (§4):** Phase 0 adds only `is_admin`. `phone`, `country`, the ban columns and the last-login columns are added by the phase that first uses them.
 16. **Display timezone:** `DISPLAY_TIMEZONE` (default `Asia/Dhaka`) is used by the `<x-local-time>` Blade component on the site and by Filament (`FilamentTimezone`). Storage stays UTC.
-17. **Admin colour:** the panel uses a neutral (zinc) primary colour until the client supplies a brand colour.
+17. **Admin colour:** brand blue `#0076D9` is the panel's primary colour (see #18).
+
+**27 Nov 2026: client brand assets.**
+
+18. **Brand (§1):** the client's asset pack sets the name **IT-Firmware.com** (`APP_NAME`, and the default for the `site_name` setting). In `public/` are the light and dark logos (`logos/`, WebP at 1× and 2×), the favicons, the touch icon, `site.webmanifest` with its PWA and maskable icons, and the share image `social/og-light.png`. The 2000 px masters and `source/` files were not copied. The theme is a class on `<html>`, so `<x-brand-logo>` swaps the light and dark artwork by class rather than by `prefers-color-scheme`. Of the pack's palette (navy `#071A35`, blue `#0076D9`, green `#009B65`, dark `#101827`), blue is the single accent on the site and in the admin, navy is the browser `theme-color`, and green stays in the logo only. Grey surfaces keep the neutral scale. In dark mode, text accents use a lighter tint of the blue (`#4D9FE4`) so they stay readable.
 
 ---
 
@@ -647,7 +651,7 @@ Server cron: `* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null
 ## 10. Environment variables (`.env.example`)
 
 ```env
-APP_NAME="{{SITE_NAME}}"
+APP_NAME="IT-Firmware.com"
 APP_TIMEZONE=UTC
 DISPLAY_TIMEZONE=Asia/Dhaka
 

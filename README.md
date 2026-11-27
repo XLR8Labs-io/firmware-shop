@@ -1,6 +1,6 @@
-# Firmware store
+# IT-Firmware.com
 
-An online store for mobile firmware, flash files and repair solutions. Technicians top up a USD wallet with bKash, Nagad or USDT and buy individual files from it. The files are stored on Google Drive and streamed to buyers through the site. "Firmware store" is a working name; the client's brand replaces it before launch.
+An online store for mobile firmware, flash files and repair solutions. Technicians top up a USD wallet with bKash, Nagad or USDT and buy individual files from it. The files are stored on Google Drive and streamed to buyers through the site.
 
 The full specification and build plan are in [docs/PLAN.md](docs/PLAN.md).
 

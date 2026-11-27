@@ -2,18 +2,6 @@
     'sidebar' => false,
 ])
 
-@inject('siteSettings', App\Services\SiteSettings::class)
-
-@if($sidebar)
-    <flux:sidebar.brand :name="$siteSettings->siteName()" {{ $attributes }}>
-        <x-slot name="logo" class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent-content text-accent-foreground">
-            <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-        </x-slot>
-    </flux:sidebar.brand>
-@else
-    <flux:brand :name="$siteSettings->siteName()" {{ $attributes }}>
-        <x-slot name="logo" class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent-content text-accent-foreground">
-            <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-        </x-slot>
-    </flux:brand>
-@endif
+<a {{ $attributes->class(['flex h-10 shrink-0 items-center', 'px-2' => $sidebar]) }}>
+    <x-brand-logo class="h-8" />
+</a>

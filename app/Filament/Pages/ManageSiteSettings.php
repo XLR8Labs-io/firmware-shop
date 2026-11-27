@@ -35,7 +35,11 @@ class ManageSiteSettings extends Page
 
     public function mount(SiteSettings $settings): void
     {
-        $this->form->fill($settings->all());
+        $this->form->fill([
+            ...$settings->all(),
+            // Until a name is saved the site shows the app name, so start from that.
+            'site_name' => $settings->siteName(),
+        ]);
     }
 
     public function form(Schema $schema): Schema

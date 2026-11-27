@@ -14,6 +14,15 @@ test('text from the settings is escaped', function (string $setting) {
         ->assertDontSee('<script>alert("x")</script>', escape: false);
 })->with(['site_name', 'ticker_text', 'support_contact_text']);
 
+test('the header logo is named after the site', function () {
+    app(SiteSettings::class)->save(['site_name' => 'Firmware Hub']);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('alt="Firmware Hub"', escape: false)
+        ->assertSee(asset('logos/logo-light-400.webp'));
+});
+
 test('the ticker is left out when no notice is set', function () {
     $this->get(route('home'))
         ->assertOk()

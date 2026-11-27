@@ -63,6 +63,20 @@
                         </p>
                     @endif
                 @endguest
+                @auth
+                    @if ($ownsProduct)
+                        <flux:callout variant="success" icon="check-circle" :heading="__('You own this file')" />
+                    @elseif (! $product->isFree())
+                        @if (auth()->user()->hasVerifiedEmail())
+                            <livewire:buy-product :product="$product" />
+                        @else
+                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                {{ __('Confirm your email address to buy files.') }}
+                                <a href="{{ route('verification.notice') }}" class="font-medium text-accent-content hover:underline">{{ __('Confirm now') }}</a>
+                            </p>
+                        @endif
+                    @endif
+                @endauth
             </aside>
         </div>
 

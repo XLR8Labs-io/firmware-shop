@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\LedgerEntryType;
 use App\Models\User;
+use App\Services\Wallet\WalletService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -93,4 +95,15 @@ function fakeGoogleDrive(array $driveResponses = []): void
         'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-access-token', 'expires_in' => 3599, 'token_type' => 'Bearer']),
         ...$driveResponses,
     ]);
+}
+
+/**
+ * A verified customer whose wallet already holds the given amount.
+ */
+function customerWithBalance(string $amount): User
+{
+    $user = User::factory()->create();
+    app(WalletService::class)->credit($user, $amount, LedgerEntryType::AdminCredit, 'test:seed:'.$user->id);
+
+    return $user;
 }

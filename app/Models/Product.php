@@ -145,12 +145,13 @@ class Product extends Model
     }
 
     /**
-     * A free file shows its password to any signed-in user. A paid file will show it
-     * only to people who bought it, once purchases exist.
+     * A free file shows its password to any signed-in user; a paid file only to people who own it.
      */
     public function passwordVisibleTo(?User $user): bool
     {
-        return $user !== null && filled($this->file_password) && $this->isFree();
+        return $user !== null
+            && filled($this->file_password)
+            && ($this->isFree() || $user->ownsProduct($this));
     }
 
     /**

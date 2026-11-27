@@ -42,8 +42,18 @@
                         <flux:profile :initials="auth()->user()->initials()" icon:trailing="chevron-down" :aria-label="__('Account menu')" />
 
                         <flux:menu>
+                            <div class="px-2 py-1.5 text-sm">
+                                {{ __('Balance') }}: <span class="font-semibold tabular-nums">${{ app(App\Services\Wallet\WalletService::class)->balance(auth()->user()) }}</span>
+                            </div>
+                            <flux:menu.separator />
                             <flux:menu.item :href="route('dashboard')" icon="layout-grid" wire:navigate>
                                 {{ __('Dashboard') }}
+                            </flux:menu.item>
+                            <flux:menu.item :href="route('account.purchases')" icon="shopping-bag" wire:navigate>
+                                {{ __('My purchases') }}
+                            </flux:menu.item>
+                            <flux:menu.item :href="route('account.wallet')" icon="wallet" wire:navigate>
+                                {{ __('Wallet') }}
                             </flux:menu.item>
                             <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
                                 {{ __('Settings') }}

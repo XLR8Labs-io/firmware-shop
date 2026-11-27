@@ -20,6 +20,7 @@ class ProductController extends Controller
             'product' => $product,
             'breadcrumbs' => $product->folder->ancestors()->push($product->folder),
             'showPassword' => $product->passwordVisibleTo($request->user()),
+            'ownsProduct' => $request->user()?->ownsProduct($product) ?? false,
             'relatedProducts' => Product::query()
                 ->visible()
                 ->where('folder_id', $product->folder_id)

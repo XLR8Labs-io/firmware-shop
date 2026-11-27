@@ -15,6 +15,12 @@
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="shopping-bag" :href="route('account.purchases')" :current="request()->routeIs('account.purchases')" wire:navigate>
+                        {{ __('My purchases') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="wallet" :href="route('account.wallet')" :current="request()->routeIs('account.wallet')" wire:navigate>
+                        {{ __('Wallet') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

@@ -54,7 +54,7 @@ test('the description is rendered as Markdown without running scripts or unsafe 
         ->assertDontSee('href="javascript:', escape: false);
 });
 
-test('the file password is shown only to signed-in users, and only for free files for now', function () {
+test('the file password is shown to signed-in users for free files, and to nobody else without buying', function () {
     $free = Product::factory()->published()->create(['file_password' => 'free-pass-123']);
     $paid = Product::factory()->published()->paid()->create(['file_password' => 'paid-pass-456']);
     $customer = User::factory()->create();

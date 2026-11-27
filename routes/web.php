@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FolderController;
@@ -16,7 +17,9 @@ Route::get('rss', [FeedController::class, 'rss'])->name('rss');
 Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('account/purchases', [AccountController::class, 'purchases'])->name('account.purchases');
+    Route::get('account/wallet', [AccountController::class, 'wallet'])->name('account.wallet');
 });
 
 require __DIR__.'/settings.php';

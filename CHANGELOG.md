@@ -2,6 +2,9 @@
 
 ## 27 November 2026
 
+- Customers have a wallet. Paid files can be bought from it: a confirmation shows the price, the balance and what is left, and the file's password appears once it is bought. If the balance is too low, the customer is told how much more they need. Nobody is charged a price they did not confirm.
+- Customers can see their balance in the menu, their purchases (with file passwords) and their wallet history.
+- Admins can look up customers, add or remove wallet money with a reason, and refund purchases. Every change is recorded with the admin who made it.
 - Customers can browse the catalogue. The home page shows recent, top and featured files and the brands. Folder pages list their folders and files, sortable by newest, most downloaded or price. Each file has its own page with its size, checksum, price and flashing warnings. Search finds files by model name, model number or codename, and can be limited to one brand.
 - Recent and top file lists, an RSS feed of new files and a sitemap for search engines are available.
 - Admins can import a whole Google Drive folder into the catalogue: its folders become site folders and its files arrive as drafts at a chosen price. Running an import again only adds what is new, and the admin panel shows each import's progress.

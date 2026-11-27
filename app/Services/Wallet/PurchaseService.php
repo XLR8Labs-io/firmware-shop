@@ -30,7 +30,11 @@ class PurchaseService
     {
         return DB::transaction(function () use ($user, $product, $confirmedPrice): Purchase {
             // The same lock WalletService::debit takes, held first so the "already bought?" check is serialized too.
-            User::query()->whereKey($user->id)->lockForUpdate()->sole();
+            $current = User::query()->whereKey($user->id)->lockForUpdate()->sole();
+
+            if ($current->is_banned) {
+                throw PurchaseNotAllowed::banned($current->ban_reason);
+            }
 
             $product = Product::query()->findOrFail($product->id);
             $purchase = Purchase::query()->where('user_id', $user->id)->where('product_id', $product->id)->first();

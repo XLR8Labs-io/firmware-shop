@@ -11,6 +11,11 @@ class DownloadNotAllowed extends RuntimeException
         return new self('This file is not available.');
     }
 
+    public static function banned(?string $reason): self
+    {
+        return new self(filled($reason) ? "Your account cannot download files: {$reason}" : 'Your account cannot download files. Please contact support.');
+    }
+
     public static function notOwned(): self
     {
         return new self('Buy this file to download it.');

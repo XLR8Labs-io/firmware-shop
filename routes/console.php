@@ -13,6 +13,10 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('app:backup-database')
+    ->dailyAt('03:30')
+    ->withoutOverlapping();
+
 Schedule::call(fn () => DownloadToken::query()->where('created_at', '<', now()->subDays(7))->delete())
     ->hourly()
     ->name('delete-old-download-links')

@@ -43,9 +43,11 @@ class DownloadController extends Controller
      */
     public function stream(Request $request, string $token, DriveClient $drive, SiteSettings $settings): Response
     {
-        $link = DownloadToken::query()->with(['product', 'log'])->where('token', $token)->first();
+        $link = DownloadToken::query()->with(['product', 'log', 'user'])->where('token', $token)->first();
 
         abort_if($link === null || $link->expires_at->isPast(), 404, __('This download link has expired. Open the file page and click Download again.'));
+        // A ban also stops links handed out before it.
+        abort_if($link->user->is_banned, 403, __('This account cannot download files. Please contact support.'));
 
         $ip = (string) $request->ip();
 

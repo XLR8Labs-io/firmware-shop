@@ -2,6 +2,10 @@
 
 ## 27 November 2026
 
+- Admins can ban a customer with a reason. A banned customer can still sign in and see their wallet, but cannot buy or download files, and download links they already have stop working. They see the reason on their dashboard and on file pages. Bans can be lifted.
+- The database is backed up every night, and two weeks of backups are kept. If a backup fails, the admins get a Telegram message.
+- If something goes wrong on the live site, the admins get a Telegram message about it, at most once an hour for the same problem.
+- Pages now tell browsers not to let other sites embed them, which protects against click-tricking attacks.
 - Customers can pay with bKash or Nagad online. They enter the amount, pay on the store's payment page, and the money is in their wallet as soon as the payment is confirmed, with no waiting for an admin. Sending money and entering the TrxID by hand still works as before.
 - A payment is never credited twice, whether it comes in online, by hand, or both. Online payments that don't match what was ordered are held for an admin, who gets a Telegram alert.
 - The store can post announcements. They appear on the home page and on an Announcements page, and can also scroll in the notice bar at the top of every page. An announcement can be scheduled for a later time.

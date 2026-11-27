@@ -49,6 +49,31 @@ class ViewUser extends ViewRecord
 
                     Notification::make()->success()->title("Removed \${$data['amount']}")->send();
                 }),
+            Action::make('ban')
+                ->icon(Heroicon::OutlinedNoSymbol)
+                ->color('danger')
+                ->visible(fn (): bool => ! $this->customer()->is_banned && ! $this->customer()->is_admin)
+                ->modalDescription('The customer can still sign in and use their wallet, but cannot buy or download files. Download links they already have stop working.')
+                ->schema([
+                    Textarea::make('reason')
+                        ->helperText('The customer sees this reason.')
+                        ->required()
+                        ->maxLength(500),
+                ])
+                ->action(function (array $data): void {
+                    $this->customer()->ban($data['reason']);
+
+                    Notification::make()->success()->title('Customer banned')->send();
+                }),
+            Action::make('unban')
+                ->icon(Heroicon::OutlinedCheckCircle)
+                ->visible(fn (): bool => $this->customer()->is_banned)
+                ->requiresConfirmation()
+                ->action(function (): void {
+                    $this->customer()->unban();
+
+                    Notification::make()->success()->title('Ban lifted')->send();
+                }),
         ];
     }
 

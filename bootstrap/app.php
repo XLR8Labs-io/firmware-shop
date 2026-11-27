@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\SecurityHeaders;
+use App\Jobs\SendAdminAlert;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,8 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->preventRequestForgery(except: [
             'webhooks/piprapay',
         ]);
+
+        $middleware->web(append: [SecurityHeaders::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Only errors worth reporting reach this (not 404s or failed validation); logging continues as usual.
+        $exceptions->report(fn (Throwable $error) => SendAdminAlert::aboutError($error));
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

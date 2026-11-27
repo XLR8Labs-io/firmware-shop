@@ -1,5 +1,14 @@
 <x-layouts::app :title="__('Dashboard')">
     <div class="space-y-10">
+        @if (auth()->user()->is_banned)
+            <flux:callout variant="danger" icon="no-symbol" :heading="__('Your account cannot buy or download files.')">
+                @if (auth()->user()->ban_reason)
+                    <flux:callout.text>{{ __('Reason: :reason', ['reason' => auth()->user()->ban_reason]) }}</flux:callout.text>
+                @endif
+                <flux:callout.text>{{ __('Contact support if you think this is a mistake.') }}</flux:callout.text>
+            </flux:callout>
+        @endif
+
         <section class="space-y-2">
             <flux:heading size="xl" level="1">{{ __('Dashboard') }}</flux:heading>
             <div class="rounded-lg border border-zinc-200 p-5 dark:border-zinc-700">

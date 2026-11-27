@@ -169,6 +169,33 @@ _(Claude Code: record changes to this plan here.)_
     - In the admin queue, Approve is hidden for online deposits that have no TrxID yet.
 67. **Still to do before launch:** one real 10 BDT payment on each of bKash and Nagad through the live PipraPay install. This is the Phase 7 acceptance item that only a real payment can prove; the tests use faked PipraPay responses.
 
+**27 Nov 2026: Phase 8 (hardening and performance).**
+
+68. **Bans (§4, §5.2, §5.3, §6.3), built here:** #41 left bans without a phase, and this is the last one.
+    - `users.is_banned` and `users.ban_reason` are changed only through `User::ban()` and `unban()`.
+    - The admin user page has Ban (reason required) and Unban, and the user list shows who is banned. Admins can't be banned from the panel.
+    - `PurchaseService::buy` and `DownloadService::issueLink` refuse a banned customer, re-reading the flag under the row lock they already take.
+    - `/dl` refuses links handed out before the ban.
+    - The file page and the dashboard show the reason. A banned customer can still sign in, see their wallet and add funds, as §5.2 says.
+    - A banned World agent can still send balance, because §5.2 limits bans to buying and downloading.
+69. **Backups (§9, §11):**
+    - `php artisan app:backup-database` runs every night at 03:30. It runs `mysqldump --single-transaction` with the password passed in the environment, gzips the dump to `storage/app/private/backups/` (git-ignored), and keeps 14 days.
+    - A failure removes the partial file and alerts the admins on Telegram.
+    - No package was added (the plan suggested `spatie/laravel-backup`), because dependencies need the owner's approval and this covers the need.
+    - Copying the backups off the server (with rclone or the host's snapshots) is an operations task in the README.
+    - `--routines` is left out: the app has no stored procedures, and on an un-upgraded MariaDB it fails on `mysql.proc`.
+70. **Error monitoring:** no service was added. In production, every reported exception still goes to the log, and also reaches the admins' Telegram through `SendAdminAlert::aboutError()`, at most once an hour for the same error. 404s and failed validation aren't reported by Laravel, so they never alert. Sentry or similar can replace this later if the owner wants a dashboard.
+71. **Security headers:** every web response gets `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin` and a `Permissions-Policy` that blocks camera, microphone and location. HSTS belongs in nginx alongside the HTTPS setup.
+72. **Caching heavy queries: none needed.**
+    - The home and top-file lists are served by the `(status, published_at)` and `(status, download_count)` indexes.
+    - The layout's two queries (ticker announcements and footer pages) are small and indexed.
+    - With the database cache store, caching them would swap two indexed reads for one cache read plus unserialising, with no real saving. Settings and the folder tree are already cached.
+    - Revisit with Redis, or if slow-query logs show otherwise.
+73. **Full suite on MySQL 8:** done on every push since Phase 0. GitHub Actions runs the whole suite against MySQL 8.4, and every phase passed it.
+74. **Not done here, and why:**
+    - **Load test of `/dl`:** it needs the real Drive and server, so it can't be done here. Before launch, on the production server, request a download link and run, for example, `hey -n 200 -c 20 https://<site>/dl/<token>/<file>` from up to 3 IPs (the per-link limit). Watch PHP-FPM's busy workers, memory and the time to first byte.
+    - **nginx `X-Accel-Redirect` streaming:** the plan says to do this only if load requires it, so it waits for that load test. If downloads tie up all PHP-FPM workers, add it then.
+
 ---
 
 ## 1. Project summary & locked decisions

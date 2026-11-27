@@ -16,6 +16,11 @@ class PurchaseNotAllowed extends RuntimeException
         return new self("The price has changed to \${$currentPrice}. Check it and confirm again.");
     }
 
+    public static function banned(?string $reason): self
+    {
+        return new self(filled($reason) ? "Your account cannot buy files: {$reason}" : 'Your account cannot buy files. Please contact support.');
+    }
+
     public static function notRefundable(): self
     {
         return new self('Only an active purchase can be refunded.');

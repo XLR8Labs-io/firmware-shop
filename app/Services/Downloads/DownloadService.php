@@ -34,7 +34,11 @@ class DownloadService
 
         return DB::transaction(function () use ($user, $product, $ip, $userAgent): DownloadToken {
             // Serializes this user's clicks so the daily limit can't be passed by clicking many times at once.
-            User::query()->whereKey($user->id)->lockForUpdate()->sole();
+            $current = User::query()->whereKey($user->id)->lockForUpdate()->sole();
+
+            if ($current->is_banned) {
+                throw DownloadNotAllowed::banned($current->ban_reason);
+            }
 
             $limit = $this->settings->dailyDownloadLimit();
             $linksToday = DownloadToken::query()

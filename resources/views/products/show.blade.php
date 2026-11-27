@@ -64,6 +64,13 @@
                     @if (session('download_error'))
                         <flux:callout variant="danger" icon="x-circle" :heading="session('download_error')" />
                     @endif
+                    @if (auth()->user()->is_banned)
+                        <flux:callout variant="danger" icon="no-symbol" :heading="__('Your account cannot buy or download files.')">
+                            @if (auth()->user()->ban_reason)
+                                <flux:callout.text>{{ __('Reason: :reason', ['reason' => auth()->user()->ban_reason]) }}</flux:callout.text>
+                            @endif
+                        </flux:callout>
+                    @else
                     @if (($ownsProduct || $product->isFree()) && auth()->user()->hasVerifiedEmail())
                         <form method="POST" action="{{ route('downloads.store', $product) }}">
                             @csrf
@@ -81,6 +88,7 @@
                                 <a href="{{ route('verification.notice') }}" class="font-medium text-accent-content hover:underline">{{ __('Confirm now') }}</a>
                             </p>
                         @endif
+                    @endif
                     @endif
                 @endauth
             </aside>

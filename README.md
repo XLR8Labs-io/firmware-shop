@@ -77,3 +77,11 @@ Set `TELEGRAM_BOT_TOKEN` (from @BotFather) and `TELEGRAM_ADMIN_CHAT_ID` to recei
 ## Deployment
 
 Not deployed yet. The target is an Ubuntu VPS with nginx, PHP-FPM, MySQL 8, Supervisor for the queue worker and a cron entry for the scheduler. Downloads stream through the server, so turn off response buffering for `/dl` (`fastcgi_buffering off` in nginx, `output_buffering` off in PHP). See PLAN.md §14 for details.
+
+In production:
+
+- Set `APP_ENV=production` and `APP_DEBUG=false`, and `LOG_STACK=daily` so logs rotate.
+- **Backups:** the scheduler runs `php artisan app:backup-database` every night at 03:30. It saves a gzipped database dump in `storage/app/private/backups/` and keeps 14 days. `mysqldump` must be installed. Copy that folder off the server every day, for example with rclone to cloud storage, together with `.env` and the Google service account key. A backup that stays on the server is lost with it.
+- **Error alerts:** with Telegram set up, unexpected server errors are sent to the admins' chat, at most once an hour for the same error. The full details are in `storage/logs`.
+- **HTTPS:** add HSTS in nginx (`add_header Strict-Transport-Security "max-age=31536000" always;`) once HTTPS works. The app already sets the other security headers.
+- **Before launch,** load-test a real download link and check that PHP-FPM keeps enough free workers (PLAN.md Deviations #74).

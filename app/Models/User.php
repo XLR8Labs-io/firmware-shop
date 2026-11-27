@@ -27,6 +27,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property bool $is_admin
+ * @property bool $is_banned Banned customers can sign in but not buy or download.
+ * @property string|null $ban_reason Shown to the customer.
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -49,6 +51,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
      */
     protected $attributes = [
         'is_admin' => false,
+        'is_banned' => false,
     ];
 
     /**
@@ -62,7 +65,21 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_banned' => 'boolean',
         ];
+    }
+
+    /**
+     * Stop the customer buying and downloading. They can still sign in and see why.
+     */
+    public function ban(string $reason): void
+    {
+        $this->forceFill(['is_banned' => true, 'ban_reason' => $reason])->save();
+    }
+
+    public function unban(): void
+    {
+        $this->forceFill(['is_banned' => false, 'ban_reason' => null])->save();
     }
 
     /**

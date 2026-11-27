@@ -57,6 +57,17 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the customer is banned from buying and downloading.
+     */
+    public function banned(string $reason = 'Shared paid files.'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_banned' => true,
+            'ban_reason' => $reason,
+        ]);
+    }
+
+    /**
      * Indicate that the model has two-factor authentication configured.
      */
     public function withTwoFactor(): static

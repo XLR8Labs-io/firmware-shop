@@ -31,6 +31,10 @@ class UsersTable
                 IconColumn::make('is_admin')
                     ->label('Admin')
                     ->boolean(),
+                IconColumn::make('is_banned')
+                    ->label('Banned')
+                    ->boolean()
+                    ->trueColor('danger'),
                 TextColumn::make('created_at')
                     ->label('Joined')
                     ->dateTime()

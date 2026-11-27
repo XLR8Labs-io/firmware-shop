@@ -48,6 +48,14 @@ _(Claude Code: record changes to this plan here.)_
 
 18. **Brand (§1):** the client's asset pack sets the name **IT-Firmware.com** (`APP_NAME`, and the default for the `site_name` setting). In `public/` are the light and dark logos (`logos/`, WebP at 1× and 2×), the favicons, the touch icon, `site.webmanifest` with its PWA and maskable icons, and the share image `social/og-light.png`. The 2000 px masters and `source/` files were not copied. The theme is a class on `<html>`, so `<x-brand-logo>` swaps the light and dark artwork by class rather than by `prefers-color-scheme`. Of the pack's palette (navy `#071A35`, blue `#0076D9`, green `#009B65`, dark `#101827`), blue is the single accent on the site and in the admin, navy is the browser `theme-color`, and green stays in the logo only. Grey surfaces keep the neutral scale. In dark mode, text accents use a lighter tint of the blue (`#4D9FE4`) so they stay readable.
 
+**27 Nov 2026: Phase 1, catalogue.**
+
+19. **Folder slugs (§4):** unique across the whole site, not per parent. MySQL treats `NULL` parents as distinct, so "unique per parent" wouldn't stop two top-level folders from sharing a slug, and one slug per folder gives simple `/folders/{slug}` URLs. Collisions get `-2`, `-3` (the same applies to product slugs, soft-deleted rows included).
+20. **Hidden folders (§5.1):** hiding a folder hides every folder and file inside it. `App\Services\FolderTree` caches the whole hierarchy (id, parent, visibility) as one entry, cleared on any folder change, and answers visibility, breadcrumbs and "everything under this brand" without a query per level. `Product::visible()` means published *and* in a visible folder.
+21. **Search (§5.1):** each word of three or more letters or digits becomes a required prefix term in a boolean-mode FULLTEXT query (`+garn*`). Shorter words and words with punctuation (`s9`, `SM-A155F`) use an escaped `LIKE`. Only letters and digits ever reach the FULLTEXT query, so users can't inject search operators. InnoDB only indexes rows on commit, so the search tests commit their writes (`Tests\Concerns\CommitsDatabaseWrites`) and truncate afterwards.
+22. **Deleting (§5.3):** products are soft-deleted only (no permanent delete), because purchases and download logs will point at them. A folder can only be deleted once it holds no folders or files (deleted files included); the database also refuses. Admins can't move a folder inside itself or its own subfolders. "Unpublish" sets the status to `hidden`; `draft` means never published.
+23. **Code layout:** enums live in `app/Enums` (the Laravel convention), starting with `ProductStatus`.
+
 ---
 
 ## 1. Project summary & locked decisions

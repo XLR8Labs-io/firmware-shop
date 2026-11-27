@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +45,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Sign in as an admin who can open the panel (verified email, confirmed two-factor).
+ */
+function actingAsAdmin(): User
 {
-    // ..
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+
+    test()->actingAs($admin);
+
+    return $admin;
 }

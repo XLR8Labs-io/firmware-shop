@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * One site-wide setting. Read and write settings through App\Services\SiteSettings,
@@ -13,8 +13,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string|null $value
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  */
 #[Fillable(['name', 'value'])]
 class Setting extends Model

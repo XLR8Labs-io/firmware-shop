@@ -26,6 +26,8 @@ class ManageSiteSettings extends Page
 
     protected static ?string $navigationLabel = 'Settings';
 
+    protected static ?int $navigationSort = 99;
+
     protected static ?string $title = 'Settings';
 
     /**

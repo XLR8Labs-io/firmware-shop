@@ -14,6 +14,14 @@
 <meta name="theme-color" content="#071a35">
 <meta property="og:site_name" content="{{ $siteSettings->siteName() }}">
 <meta property="og:image" content="{{ asset('social/og-light.png') }}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ filled($title ?? null) ? $title : $siteSettings->siteName() }}">
+<meta property="og:url" content="{{ url()->current() }}">
+@if (filled($description ?? null))
+    <meta name="description" content="{{ $description }}">
+    <meta property="og:description" content="{{ $description }}">
+@endif
+<link rel="alternate" type="application/rss+xml" title="{{ __('Recent files') }}" href="{{ route('rss') }}">
 
 @fonts
 

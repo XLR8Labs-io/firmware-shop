@@ -2,6 +2,8 @@
 
 ## 27 November 2026
 
+- Customers can browse the catalogue. The home page shows recent, top and featured files and the brands. Folder pages list their folders and files, sortable by newest, most downloaded or price. Each file has its own page with its size, checksum, price and flashing warnings. Search finds files by model name, model number or codename, and can be limited to one brand.
+- Recent and top file lists, an RSS feed of new files and a sitemap for search engines are available.
 - Admins can import a whole Google Drive folder into the catalogue: its folders become site folders and its files arrive as drafts at a chosen price. Running an import again only adds what is new, and the admin panel shows each import's progress.
 - When adding a file by hand, pasting its Google Drive share link fills in the name, size and checksum.
 - Admins can build the catalogue in the admin panel: folders for brands, series and models (with images, ordering and a visibility switch that also hides everything inside), and files with prices, passwords and their Google Drive details. Several files can be published, unpublished, featured, repriced or moved at once.

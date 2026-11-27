@@ -144,6 +144,23 @@ class Product extends Model
         }
     }
 
+    /**
+     * A free file shows its password to any signed-in user. A paid file will show it
+     * only to people who bought it, once purchases exist.
+     */
+    public function passwordVisibleTo(?User $user): bool
+    {
+        return $user !== null && filled($this->file_password) && $this->isFree();
+    }
+
+    /**
+     * "Free" or the price in dollars, such as "$40.00".
+     */
+    public function displayPrice(): string
+    {
+        return $this->isFree() ? __('Free') : '$'.$this->price;
+    }
+
     public function isFree(): bool
     {
         return bccomp($this->price, '0', 2) === 0;

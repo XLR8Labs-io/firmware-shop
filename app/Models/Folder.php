@@ -7,6 +7,7 @@ use App\Services\FolderTree;
 use Carbon\CarbonImmutable;
 use Database\Factories\FolderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -96,6 +97,21 @@ class Folder extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    /**
+     * The folders above this one, top level first.
+     *
+     * @return Collection<int, Folder>
+     */
+    public function ancestors(): Collection
+    {
+        $ids = app(FolderTree::class)->ancestorIds($this->id);
+
+        return Folder::query()
+            ->findMany($ids)
+            ->sortBy(fn (Folder $folder): int|false => array_search($folder->id, $ids, true))
+            ->values();
     }
 
     public function imageUrl(): ?string

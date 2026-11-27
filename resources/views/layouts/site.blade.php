@@ -1,4 +1,4 @@
-@props(['title' => null])
+@props(['title' => null, 'description' => null])
 
 @inject('siteSettings', App\Services\SiteSettings::class)
 
@@ -71,6 +71,23 @@
                     @endif
                 @endauth
             </div>
+
+            <div class="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 pb-4 sm:px-6">
+                <form method="GET" action="{{ route('search') }}" role="search" class="w-full sm:max-w-md">
+                    <flux:input
+                        name="q"
+                        :value="request()->routeIs('search') ? request()->string('q')->limit(100, '')->toString() : ''"
+                        icon="magnifying-glass"
+                        maxlength="100"
+                        :placeholder="__('Model, model number or codename')"
+                        :aria-label="__('Search files')"
+                    />
+                </form>
+                <nav aria-label="{{ __('Browse') }}" class="flex gap-5 text-sm font-medium">
+                    <a href="{{ route('recent') }}" class="hover:text-accent-content hover:underline">{{ __('Recent files') }}</a>
+                    <a href="{{ route('top') }}" class="hover:text-accent-content hover:underline">{{ __('Top files') }}</a>
+                </nav>
+            </div>
         </header>
 
         <main class="flex-1">
@@ -97,7 +114,10 @@
 
                 <p>{{ __('We are not responsible for damage caused by flashing files from this site. Back up your device before you flash it.') }}</p>
 
-                <p>&copy; {{ now()->year }} {{ $siteName }}</p>
+                <p class="flex flex-wrap gap-x-6 gap-y-2">
+                    <span>&copy; {{ now()->year }} {{ $siteName }}</span>
+                    <a href="{{ route('rss') }}" class="hover:underline">{{ __('RSS feed of recent files') }}</a>
+                </p>
             </div>
         </footer>
 

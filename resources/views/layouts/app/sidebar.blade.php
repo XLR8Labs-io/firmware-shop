@@ -24,6 +24,11 @@
                     <flux:sidebar.item icon="wallet" :href="route('account.wallet')" :current="request()->routeIs('account.wallet')" wire:navigate>
                         {{ __('Wallet') }}
                     </flux:sidebar.item>
+                    @if (auth()->user()->canSendBalance())
+                        <flux:sidebar.item icon="paper-airplane" :href="route('account.send-balance')" :current="request()->routeIs('account.send-balance')" wire:navigate>
+                            {{ __('Send balance') }}
+                        </flux:sidebar.item>
+                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

@@ -52,5 +52,22 @@
                 <x-folder-grid :folders="$brands" />
             </section>
         @endif
+
+        @if ($announcements->isNotEmpty())
+            <section aria-labelledby="announcements-heading" class="space-y-4">
+                <div class="flex items-baseline justify-between gap-4">
+                    <h2 id="announcements-heading" class="text-lg font-semibold">{{ __('Announcements') }}</h2>
+                    <a href="{{ route('announcements.index') }}" class="text-sm font-medium text-accent-content hover:underline">{{ __('All announcements') }}</a>
+                </div>
+                <ul class="divide-y divide-zinc-200 border-y border-zinc-200 dark:divide-zinc-700 dark:border-zinc-700">
+                    @foreach ($announcements as $announcement)
+                        <li class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
+                            <a href="{{ route('announcements.show', $announcement) }}" class="min-w-0 font-medium break-words hover:text-accent-content hover:underline">{{ $announcement->title }}</a>
+                            <span class="text-sm text-zinc-500 dark:text-zinc-400"><x-local-time :at="$announcement->published_at" /></span>
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
     </div>
 </x-layouts::site>

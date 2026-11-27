@@ -49,6 +49,14 @@ Customers can pay in USDT on TRON (TRC20) or BNB Smart Chain (BEP20). Each depos
 - `CRYPTO_MIN_USD` sets the smallest deposit.
 - Payments that match no deposit, such as an underpayment, appear under **Crypto transfers** in the admin panel. An admin can assign one to a customer from there.
 
+## Content
+
+The admin panel's **Content** group has announcements, blog posts, pages, file requests and World agents.
+
+- No pages exist at the start. Before launch, write and publish About us, Privacy policy, Terms of service, Refund policy and How to buy. Published pages appear in the footer.
+- An announcement marked for the notice bar scrolls at the top of every page.
+- To let a World agent send balance, link the agent to their account. The agent then gets a **Send balance** page in their account area, which moves money from their own wallet.
+
 ## Telegram alerts
 
 Customers' deposit emails need a real mail setup (`MAIL_MAILER` and friends) and the queue worker.

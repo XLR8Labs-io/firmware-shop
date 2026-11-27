@@ -32,10 +32,7 @@
                 </dl>
 
                 @if ($product->description)
-                    {{-- Raw HTML from the description is escaped and unsafe links are dropped. --}}
-                    <div class="max-w-3xl space-y-4 leading-relaxed [&_a]:text-accent-content [&_a]:underline [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:font-semibold [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5">
-                        {!! Str::markdown($product->description, ['html_input' => 'escape', 'allow_unsafe_links' => false]) !!}
-                    </div>
+                    <x-markdown :text="$product->description" />
                 @endif
 
                 <flux:callout variant="warning" icon="exclamation-triangle" :heading="__('Before you flash')">

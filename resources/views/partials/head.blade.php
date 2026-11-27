@@ -13,7 +13,7 @@
 <link rel="manifest" href="{{ asset('site.webmanifest') }}">
 <meta name="theme-color" content="#071a35">
 <meta property="og:site_name" content="{{ $siteSettings->siteName() }}">
-<meta property="og:image" content="{{ asset('social/og-light.png') }}">
+<meta property="og:image" content="{{ filled($image ?? null) ? $image : asset('social/og-light.png') }}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ filled($title ?? null) ? $title : $siteSettings->siteName() }}">
 <meta property="og:url" content="{{ url()->current() }}">

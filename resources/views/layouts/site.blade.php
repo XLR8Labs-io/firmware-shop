@@ -1,10 +1,12 @@
-@props(['title' => null, 'description' => null])
+@props(['title' => null, 'description' => null, 'image' => null])
 
 @inject('siteSettings', App\Services\SiteSettings::class)
 
 @php
     $siteName = $siteSettings->siteName();
     $tickerText = $siteSettings->get('ticker_text');
+    $tickerAnnouncements = App\Models\Announcement::query()->published()->where('show_in_ticker', true)->latest('published_at')->limit(5)->get(['id', 'title']);
+    $footerPages = App\Models\Page::query()->published()->orderBy('title')->get(['title', 'slug']);
     $supportContactText = $siteSettings->get('support_contact_text');
     $socialLinks = $siteSettings->socialLinks();
 @endphp
@@ -15,7 +17,7 @@
         @include('partials.head')
     </head>
     <body class="flex min-h-screen flex-col bg-white text-zinc-900 antialiased dark:bg-zinc-900 dark:text-zinc-100">
-        @if (filled($tickerText))
+        @if (filled($tickerText) || $tickerAnnouncements->isNotEmpty())
             {{-- Hovering or focusing the bar pauses it; with reduced motion the text sits still and wraps. --}}
             <div
                 class="group overflow-hidden border-b border-zinc-200 bg-zinc-50 py-2 text-sm text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
@@ -23,8 +25,14 @@
                 aria-label="{{ __('Notices') }}"
                 tabindex="0"
             >
-                <p class="inline-block animate-ticker whitespace-nowrap pl-[100%] group-hover:[animation-play-state:paused] group-focus:[animation-play-state:paused] motion-reduce:animate-none motion-reduce:whitespace-normal motion-reduce:px-4">
-                    {{ $tickerText }}
+                <p class="inline-block animate-ticker whitespace-nowrap pl-[100%] group-hover:[animation-play-state:paused] group-focus-within:[animation-play-state:paused] motion-reduce:animate-none motion-reduce:whitespace-normal motion-reduce:px-4">
+                    @if (filled($tickerText))
+                        <span>{{ $tickerText }}</span>
+                    @endif
+                    @foreach ($tickerAnnouncements as $announcement)
+                        <span aria-hidden="true" class="px-3">•</span>
+                        <a href="{{ route('announcements.show', $announcement) }}" class="font-medium underline-offset-4 hover:underline">{{ $announcement->title }}</a>
+                    @endforeach
                 </p>
             </div>
         @endif
@@ -96,9 +104,12 @@
                         :aria-label="__('Search files')"
                     />
                 </form>
-                <nav aria-label="{{ __('Browse') }}" class="flex gap-5 text-sm font-medium">
+                <nav aria-label="{{ __('Browse') }}" class="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
                     <a href="{{ route('recent') }}" class="hover:text-accent-content hover:underline">{{ __('Recent files') }}</a>
                     <a href="{{ route('top') }}" class="hover:text-accent-content hover:underline">{{ __('Top files') }}</a>
+                    <a href="{{ route('file-requests.create') }}" class="hover:text-accent-content hover:underline">{{ __('Request a file') }}</a>
+                    <a href="{{ route('agents.index') }}" class="hover:text-accent-content hover:underline">{{ __('World agents') }}</a>
+                    <a href="{{ route('blog.index') }}" class="hover:text-accent-content hover:underline">{{ __('Blog') }}</a>
                 </nav>
             </div>
         </header>
@@ -127,10 +138,17 @@
 
                 <p>{{ __('We are not responsible for damage caused by flashing files from this site. Back up your device before you flash it.') }}</p>
 
-                <p class="flex flex-wrap gap-x-6 gap-y-2">
-                    <span>&copy; {{ now()->year }} {{ $siteName }}</span>
-                    <a href="{{ route('rss') }}" class="hover:underline">{{ __('RSS feed of recent files') }}</a>
-                </p>
+                <nav aria-label="{{ __('About the store') }}">
+                    <ul class="flex flex-wrap gap-x-6 gap-y-2">
+                        <li><a href="{{ route('announcements.index') }}" class="hover:underline">{{ __('Announcements') }}</a></li>
+                        @foreach ($footerPages as $page)
+                            <li><a href="{{ route('pages.show', $page) }}" class="hover:underline">{{ $page->title }}</a></li>
+                        @endforeach
+                        <li><a href="{{ route('rss') }}" class="hover:underline">{{ __('RSS feed of recent files') }}</a></li>
+                    </ul>
+                </nav>
+
+                <p>&copy; {{ now()->year }} {{ $siteName }}</p>
             </div>
         </footer>
 

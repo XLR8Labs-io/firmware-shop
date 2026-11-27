@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Folder;
 use App\Models\Product;
 use App\Services\FolderTree;
@@ -19,6 +20,7 @@ class CatalogueController extends Controller
             'topProducts' => Product::query()->visible()->orderByDesc('download_count')->latest('published_at')->limit(10)->get(),
             'featuredProducts' => Product::query()->visible()->where('is_featured', true)->latest('published_at')->limit(8)->get(),
             'brands' => $this->brands(),
+            'announcements' => Announcement::query()->published()->latest('published_at')->limit(3)->get(),
         ]);
     }
 

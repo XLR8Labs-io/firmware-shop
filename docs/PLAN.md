@@ -109,6 +109,29 @@ _(Claude Code: record changes to this plan here.)_
 51. **TronGrid (§8.3.5):** the endpoint, header, query parameters, `meta.fingerprint` paging and item fields match TronGrid's current docs. The scanner also skips any item whose `value` isn't a number. The plan's `Hex::toDec` used `hexdec()`, which returns a float, and accepted non-hex input. The helper now uses `intval($digit, 16)` and rejects anything that isn't hex.
 52. **Before launch:** check both USDT contract addresses in `config/crypto.php` against Tether's site, tronscan.org and bscscan.com, and make one small real deposit on each network. The tests only use faked responses.
 
+**27 Nov 2026: Phase 6 (content and community).**
+
+53. **Addresses (§5.1):**
+    - CMS pages live at `/pages/{slug}`, not at the site root. A root-level catch-all could swallow future routes.
+    - Published pages are listed in the footer, alphabetically.
+    - No pages are created automatically: About, Privacy, Terms, Refund and How to buy are written by the client in the admin panel. Legal text shouldn't be invented.
+    - The other public addresses are `/announcements`, `/blog`, `/agents` (World agents) and `/request-file`.
+54. **Publishing:** announcements and blog posts have a publish time. Switching one on without a time publishes it now, and a future time schedules it. Pages only have the on/off switch, as the data model says.
+55. **Ticker (§5.1):**
+    - The notice bar shows the settings text plus up to five published ticker announcements, each linking to its page.
+    - The bar now also pauses while a link inside it has keyboard focus.
+    - These announcements and the footer pages are read with two small queries per page view. Caching them is left for Phase 8.
+56. **File requests (§4):**
+    - `admin_reply` is shown to signed-in customers under "Your requests" on the request page. Guests have to be contacted directly.
+    - The form is limited to 5 requests per hour per account, or per IP address for guests. Anything that fills in the hidden honeypot field is thanked but not saved.
+    - The admin queue has a count badge for open requests. No Telegram alert is sent: §5.4 doesn't list one.
+57. **Reseller balance transfer (§7.5):**
+    - An active agent linked to an account gets a "Send balance" page in their account area.
+    - The page shows the recipient's name for a final check, and sends nothing if the email or amount changed after that check.
+    - The ledger reference is `transfer:{uuid}`, shared by the `transfer_out` and `transfer_in` rows. The rows are labelled "To {customer email}" and "From {agent name}".
+    - The recipient gets no email.
+58. **Markdown:** product descriptions, announcements, blog posts and pages all render through one Blade component, `<x-markdown>`. It escapes raw HTML and drops unsafe links. Images uploaded in the admin's Markdown editor go to the public disk.
+
 ---
 
 ## 1. Project summary & locked decisions

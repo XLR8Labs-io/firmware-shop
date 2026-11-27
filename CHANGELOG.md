@@ -2,6 +2,10 @@
 
 ## 27 November 2026
 
+- The store can post announcements. They appear on the home page and on an Announcements page, and can also scroll in the notice bar at the top of every page. An announcement can be scheduled for a later time.
+- The site has a blog, with cover images, and pages such as About us, Terms or How to buy. Published pages are linked at the bottom of every page. Everything is written and published from the admin panel.
+- Visitors can ask for a file the store doesn't have yet. Signed-in customers see their requests and the store's replies on the same page. Admins see open requests, with a count in the menu, and can reply to them.
+- A World agents page lists local agents and how to contact them. An agent linked to an account can send their wallet balance to a customer by email address, after checking the customer's name.
 - Customers can add money with USDT on TRON (TRC20) or BNB Smart Chain (BEP20). Each deposit gets its own exact amount to send, with the store's address and a QR code. TRON payments are found within a minute or two. For BNB Smart Chain, the customer pastes their transaction hash. The page updates on its own, and the customer gets an email once the money is in their wallet.
 - A payment is only ever credited to the customer whose deposit it matches. Copying someone else's transaction hash gets nothing, and fake USDT tokens are ignored. A payment that arrives up to a day late still counts.
 - Payments that match no deposit, for example because too little was sent, go to a review list in the admin panel and trigger a Telegram alert. An admin can credit one to the right customer with a reason.

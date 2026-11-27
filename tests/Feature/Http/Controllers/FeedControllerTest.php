@@ -1,7 +1,23 @@
 <?php
 
+use App\Models\Article;
 use App\Models\Folder;
+use App\Models\Page;
 use App\Models\Product;
+
+test('the sitemap lists published blog posts and pages only', function () {
+    $article = Article::factory()->create();
+    $draftArticle = Article::factory()->draft()->create();
+    $page = Page::factory()->create();
+    $draftPage = Page::factory()->draft()->create();
+
+    $this->get(route('sitemap'))
+        ->assertOk()
+        ->assertSee(route('blog.show', $article))
+        ->assertSee(route('pages.show', $page))
+        ->assertDontSee(route('blog.show', $draftArticle))
+        ->assertDontSee(route('pages.show', $draftPage));
+});
 
 test('the RSS feed lists published files as valid XML with titles escaped', function () {
     $product = Product::factory()->published()->create(['title' => 'Tools & Drivers <v2>']);

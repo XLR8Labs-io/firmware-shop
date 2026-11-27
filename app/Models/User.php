@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -103,6 +104,30 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
     public function cryptoInvoices(): HasMany
     {
         return $this->hasMany(CryptoInvoice::class);
+    }
+
+    /**
+     * @return HasMany<FileRequest, $this>
+     */
+    public function fileRequests(): HasMany
+    {
+        return $this->hasMany(FileRequest::class);
+    }
+
+    /**
+     * @return HasOne<Reseller, $this>
+     */
+    public function reseller(): HasOne
+    {
+        return $this->hasOne(Reseller::class);
+    }
+
+    /**
+     * Active World agents linked to an account may send their balance to customers.
+     */
+    public function canSendBalance(): bool
+    {
+        return $this->reseller()->where('is_active', true)->exists();
     }
 
     public function ownsProduct(Product $product): bool

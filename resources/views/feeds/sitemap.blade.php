@@ -19,4 +19,22 @@
             @endif
         </url>
     @endforeach
+    <url><loc>{{ route('blog.index') }}</loc></url>
+    @foreach ($articles as $article)
+        <url>
+            <loc>{{ route('blog.show', $article) }}</loc>
+            @if ($article->updated_at)
+                <lastmod>{{ $article->updated_at->toAtomString() }}</lastmod>
+            @endif
+        </url>
+    @endforeach
+    @foreach ($pages as $page)
+        <url>
+            <loc>{{ route('pages.show', $page) }}</loc>
+            @if ($page->updated_at)
+                <lastmod>{{ $page->updated_at->toAtomString() }}</lastmod>
+            @endif
+        </url>
+    @endforeach
+    <url><loc>{{ route('agents.index') }}</loc></url>
 </urlset>

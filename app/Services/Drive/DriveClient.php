@@ -48,6 +48,25 @@ class DriveClient
     }
 
     /**
+     * Starts streaming a file's content. The caller reads the body and checks the
+     * status; Range is passed through, so downloads can resume.
+     */
+    public function openStream(string $fileId, ?string $range = null): Response
+    {
+        return Http::baseUrl(self::API_URL)
+            ->withToken($this->accessToken())
+            ->withOptions(['stream' => true])
+            ->connectTimeout(15)
+            // No overall limit: a multi-gigabyte file can take hours on a slow connection.
+            ->timeout(0)
+            ->withHeaders(array_filter(['Range' => $range]))
+            ->get('files/'.rawurlencode($fileId), [
+                'alt' => 'media',
+                'supportsAllDrives' => 'true',
+            ]);
+    }
+
+    /**
      * Everything directly inside a folder, following Drive's pages of up to 1000 items.
      *
      * @return Generator<int, DriveFile>

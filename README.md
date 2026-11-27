@@ -39,6 +39,10 @@ Files live in a Google Workspace Shared Drive and are read by a service account:
 
 In the admin panel, **Drive imports** brings a Drive folder's folders and files into the catalogue as drafts, and a product's **Drive link or file ID** field fills in the file details from a share link. Imports run on the queue, so a queue worker must be running.
 
+## Telegram alerts
+
+Set `TELEGRAM_BOT_TOKEN` (from @BotFather) and `TELEGRAM_ADMIN_CHAT_ID` to receive admin alerts, for example when Google limits a file's downloads. Alerts are sent by the queue worker. Leave both empty to turn alerts off.
+
 ## Deployment
 
-Not deployed yet. The target is an Ubuntu VPS with nginx, PHP-FPM, MySQL 8, Supervisor for the queue worker and a cron entry for the scheduler. See PLAN.md §14 for details.
+Not deployed yet. The target is an Ubuntu VPS with nginx, PHP-FPM, MySQL 8, Supervisor for the queue worker and a cron entry for the scheduler. Downloads stream through the server, so turn off response buffering for `/dl` (`fastcgi_buffering off` in nginx, `output_buffering` off in PHP). See PLAN.md §14 for details.

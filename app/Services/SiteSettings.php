@@ -50,6 +50,21 @@ class SiteSettings
         ]);
     }
 
+    public function downloadLinkHours(): int
+    {
+        return $this->positiveInteger('download_link_hours', 6);
+    }
+
+    public function maxIpsPerDownloadLink(): int
+    {
+        return $this->positiveInteger('download_max_ips_per_token', 3);
+    }
+
+    public function dailyDownloadLimit(): int
+    {
+        return $this->positiveInteger('download_daily_limit_per_user', 50);
+    }
+
     /**
      * @return array<string, string|null>
      */
@@ -60,6 +75,13 @@ class SiteSettings
             self::CACHE_KEY,
             fn (): array => Setting::query()->pluck('value', 'name')->all(),
         );
+    }
+
+    private function positiveInteger(string $name, int $default): int
+    {
+        $value = $this->get($name);
+
+        return is_numeric($value) && (int) $value > 0 ? (int) $value : $default;
     }
 
     /**

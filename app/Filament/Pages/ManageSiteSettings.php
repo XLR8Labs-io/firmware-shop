@@ -66,6 +66,23 @@ class ManageSiteSettings extends Page
                                 ->maxLength(500)
                                 ->rows(3),
                         ]),
+                    Section::make('Downloads')
+                        ->schema([
+                            TextInput::make('download_link_hours')
+                                ->label('Link valid for (hours)')
+                                ->integer()->minValue(1)->maxValue(72)
+                                ->placeholder('6'),
+                            TextInput::make('download_max_ips_per_token')
+                                ->label('Places a link works from')
+                                ->helperText('Different IP addresses one download link may be used from.')
+                                ->integer()->minValue(1)->maxValue(20)
+                                ->placeholder('3'),
+                            TextInput::make('download_daily_limit_per_user')
+                                ->label('Downloads per customer per day')
+                                ->integer()->minValue(1)->maxValue(1000)
+                                ->placeholder('50'),
+                        ])
+                        ->columns(3),
                     Section::make('Community links')
                         ->description('Leave a field empty to hide that link.')
                         ->schema([

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CatalogueController;
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\ProductController;
@@ -14,6 +15,15 @@ Route::get('search', [CatalogueController::class, 'search'])->middleware('thrott
 Route::get('folders/{folder:slug}', [FolderController::class, 'show'])->name('folders.show');
 Route::get('files/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('rss', [FeedController::class, 'rss'])->name('rss');
+
+Route::post('files/{product:slug}/download', [DownloadController::class, 'store'])
+    ->middleware(['auth', 'verified', 'throttle:20,1'])
+    ->name('downloads.store');
+// No login needed: the token is the permission, so download managers and other devices work.
+Route::get('dl/{token}/{fileName}', [DownloadController::class, 'stream'])
+    ->middleware('throttle:downloads')
+    ->where('fileName', '.*')
+    ->name('downloads.stream');
 Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 
 Route::middleware(['auth', 'verified'])->group(function () {

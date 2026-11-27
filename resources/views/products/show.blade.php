@@ -64,6 +64,15 @@
                     @endif
                 @endguest
                 @auth
+                    @if (session('download_error'))
+                        <flux:callout variant="danger" icon="x-circle" :heading="session('download_error')" />
+                    @endif
+                    @if (($ownsProduct || $product->isFree()) && auth()->user()->hasVerifiedEmail())
+                        <form method="POST" action="{{ route('downloads.store', $product) }}">
+                            @csrf
+                            <flux:button type="submit" variant="primary" icon="arrow-down-tray" class="w-full">{{ __('Download') }}</flux:button>
+                        </form>
+                    @endif
                     @if ($ownsProduct)
                         <flux:callout variant="success" icon="check-circle" :heading="__('You own this file')" />
                     @elseif (! $product->isFree())

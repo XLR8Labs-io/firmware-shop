@@ -10,6 +10,20 @@ use RuntimeException;
  */
 class DriveException extends RuntimeException
 {
+    /**
+     * Google locks a file for a while after many downloads ("downloadQuotaExceeded"),
+     * service accounts included. 429 is its general rate limit.
+     */
+    public static function isQuotaLimit(Response $response): bool
+    {
+        if ($response->status() === 429) {
+            return true;
+        }
+
+        return $response->status() === 403
+            && $response->json('error.errors.0.reason') === 'downloadQuotaExceeded';
+    }
+
     public static function fromResponse(Response $response): self
     {
         if ($response->status() === 404) {

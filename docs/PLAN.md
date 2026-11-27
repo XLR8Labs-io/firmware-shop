@@ -79,6 +79,20 @@ _(Claude Code: record changes to this plan here.)_
 36. **Ledger types:** `LedgerEntryType` has only the types in use (purchase, refund, admin credit, admin debit). Deposit and transfer types are added in their phases. Ledger entries and purchases are only created through the services, so they have no factories.
 37. **Concurrency tests (§12 Phase 2):** one test proves `WalletService::debit()` holds the user's row lock while it reads the balance: another connection's `FOR UPDATE NOWAIT` fails at that moment. It fails if the lock is removed, which was checked. Another starts two real PHP processes that buy at the same moment against a balance that covers only one; exactly one succeeds.
 
+**27 Nov 2026: Phase 3, downloads.**
+
+38. **Admin alerts (§5.4):** Telegram is configured with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ADMIN_CHAT_ID` in the environment, not an `admin_telegram_chat_id` setting. Leaving them empty turns alerts off. Alerts go through a queued job (3 tries), so a slow Telegram never holds up a download. The call (`POST https://api.telegram.org/bot<token>/sendMessage` with `chat_id` and `text` of up to 4096 characters) was checked against the Bot API docs on 27 Nov 2026.
+39. **Download flow (§6.3):**
+    - Each click on Download creates one token and one log row. The log's status becomes `quota_exceeded` or `error` if the stream fails, and it records whether the mirror was used.
+    - The daily limit counts links created in the last 24 hours, checked under the user's row lock.
+    - `/dl` keeps the web middleware (an unused session cookie is harmless) and is limited to 120 requests a minute per IP, because download managers open several connections.
+    - An expired link returns 404 with a message.
+    - The `Range` header is passed to Drive only when it matches `bytes=…`.
+    - A download is counted on a link's first use, and only once per user, file and 24 hours.
+40. **Quota detection (§6.3, §6.5):** a 403 with reason `downloadQuotaExceeded` or any 429 counts as Google's per-file limit; the mirror is then tried, else the customer gets a 503 "busy" page and admins are alerted. Google's download guide (checked 27 Nov 2026) confirms `Range` on `alt=media` but doesn't document this error; the reason string comes from Google's community forum (Appendix A.4).
+41. **Bans (§5.2):** "banned users can't download" waits for the ban columns, which have no phase of their own yet. Downloads already require a verified email.
+42. **Not yet proven:** the plan's "multi-GB file downloads and resumes in a browser and IDM" needs the real Shared Drive credentials. Tests cover the behaviour with faked Drive responses (full and `206` range responses, mirror and busy paths), and the real check belongs in the go-live test (§13).
+
 ---
 
 ## 1. Project summary & locked decisions

@@ -2,6 +2,9 @@
 
 ## 27 November 2026
 
+- Customers can download free files and files they bought. Downloads come through a short-lived link that also works in download managers and can be resumed. Each link works from only a few places, and each customer has a daily download limit; admins can change both.
+- If Google Drive temporarily blocks a popular file, its mirror copy is used. If there is none, the customer is told to try again later and admins get a Telegram alert.
+- Admins can see every download, filter them by customer or file, and spot links used from more than one place. The dashboard shows how much was downloaded this month.
 - Customers have a wallet. Paid files can be bought from it: a confirmation shows the price, the balance and what is left, and the file's password appears once it is bought. If the balance is too low, the customer is told how much more they need. Nobody is charged a price they did not confirm.
 - Customers can see their balance in the menu, their purchases (with file passwords) and their wallet history.
 - Admins can look up customers, add or remove wallet money with a reason, and refund purchases. Every change is recorded with the admin who made it.

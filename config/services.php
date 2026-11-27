@@ -37,6 +37,14 @@ return [
         'shared_drive_id' => env('GOOGLE_SHARED_DRIVE_ID'),
     ],
 
+    /*
+     * Admin alerts (download quota, link sharing). Empty values turn alerts off.
+     */
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

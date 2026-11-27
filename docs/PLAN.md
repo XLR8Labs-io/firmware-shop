@@ -34,6 +34,16 @@ _(Claude Code: record changes to this plan here.)_
 9. **Passkeys (§1):** the starter kit's Fortify setup also enables passkeys alongside email/password and TOTP 2FA. Kept as an optional extra sign-in method for customers. Admin panel access still requires confirmed TOTP 2FA (§9).
 10. **Branding (§1):** the store uses the client's own branding (name, logo, colours, favicon). No XLR8Labs marks appear on the public site or in the admin. The name stays `{{SITE_NAME}}` until the client supplies it.
 
+**27 Nov 2026: Phase 0.**
+
+11. **Admin sign-in (§5.3, §9):** the Filament panel has no login page of its own (`/admin/login` doesn't exist). Admins sign in through the site's Fortify login, so its two-factor challenge always applies. Filament's built-in MFA isn't used, so each user has a single TOTP setup. The panel requires `is_admin`, a verified email and confirmed TOTP 2FA. Admins without 2FA are sent to the security settings, which tell them why.
+12. **First admin:** `php artisan app:make-admin {email}` promotes an existing account. `is_admin` is never mass-assignable.
+13. **Settings table (§4):** the columns are `name` and `value`, not `key`, because `KEY` is a reserved word in MySQL. Settings are read through `App\Services\SiteSettings` (one cache entry, loaded once per request) and edited on the admin Settings page. Phase 0 covers the site name, ticker text, support contact text and community links. Later phases add their own keys (rates, payment numbers, download limits) to the same page.
+14. **Header and footer (§5.1):** each piece arrives in the phase that builds what it points to. The search box comes in Phase 1, the wallet balance and "Add funds" in Phase 2, and the footer page links in Phase 6. The language switcher is left out until a second language exists. All interface text already goes through `__()`.
+15. **Users table (§4):** Phase 0 adds only `is_admin`. `phone`, `country`, the ban columns and the last-login columns are added by the phase that first uses them.
+16. **Display timezone:** `DISPLAY_TIMEZONE` (default `Asia/Dhaka`) is used by the `<x-local-time>` Blade component on the site and by Filament (`FilamentTimezone`). Storage stays UTC.
+17. **Admin colour:** the panel uses a neutral (zinc) primary colour until the client supplies a brand colour.
+
 ---
 
 ## 1. Project summary & locked decisions

@@ -69,6 +69,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Times are stored in UTC and shown to people in this timezone, on the
+    | site through the <x-local-time> component and in the admin panel.
+    |
+    */
+
+    'display_timezone' => env('DISPLAY_TIMEZONE', 'Asia/Dhaka'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

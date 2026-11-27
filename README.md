@@ -25,6 +25,7 @@ You need PHP 8.3 or newer with the `bcmath`, `intl` and `pdo_mysql` extensions, 
 2. Copy `.env.example` to `.env` and set `DB_PASSWORD`.
 3. Run `composer setup`. It installs dependencies, generates the app key, runs the migrations and builds the frontend.
 4. Run `composer dev` to start the app, queue worker and Vite together.
+5. Register an account on the site and confirm its email address (locally, the link is written to `storage/logs/laravel.log`). Then make it an admin with `php artisan app:make-admin you@example.com`. Before the admin panel at `/admin` will open, turn on two-factor authentication under Settings → Security.
 
 `composer test` runs Pint, PHPStan and the test suite. Tests use the `it_firmware_test` database.
 

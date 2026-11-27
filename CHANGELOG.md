@@ -2,6 +2,9 @@
 
 ## 27 November 2026
 
+- Customers can add money with USDT on TRON (TRC20) or BNB Smart Chain (BEP20). Each deposit gets its own exact amount to send, with the store's address and a QR code. TRON payments are found within a minute or two. For BNB Smart Chain, the customer pastes their transaction hash. The page updates on its own, and the customer gets an email once the money is in their wallet.
+- A payment is only ever credited to the customer whose deposit it matches. Copying someone else's transaction hash gets nothing, and fake USDT tokens are ignored. A payment that arrives up to a day late still counts.
+- Payments that match no deposit, for example because too little was sent, go to a review list in the admin panel and trigger a Telegram alert. An admin can credit one to the right customer with a reason.
 - Customers can add money with bKash or Nagad: the Add funds page shows the store's number, what to choose in the app, today's rate and how many dollars they will receive. They enter the amount, their number and the TrxID, and see each deposit's status. The Buy box links there with the missing amount filled in.
 - Admins check deposits in a queue (with a count in the menu), can correct the amount, and approve or reject with a reason. The customer gets an email either way, and admins get a Telegram alert for each new deposit. The rate, numbers, account types and minimum are set on the Settings page.
 - Customers can download free files and files they bought. Downloads come through a short-lived link that also works in download managers and can be resumed. Each link works from only a few places, and each customer has a daily download limit; admins can change both.

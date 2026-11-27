@@ -97,9 +97,17 @@ _(Claude Code: record changes to this plan here.)_
 
 43. **Instructions per account type (§8.1):** personal accounts get "Send Money", merchant accounts "Payment", and agent accounts "Cash Out" (the plan didn't say what agent accounts need).
 44. **Amounts:** dollars are taka ÷ the rate, rounded down to the cent (`bcdiv`, scale 2). The rate is stored with 4 decimals and snapshotted on each deposit. An admin's corrected amount is converted at that snapshot. A dollar shortfall from the Buy box becomes a taka amount rounded *up*, so the deposit covers it.
-45. **Deposits list (§5.2):** a customer's deposits are listed on the Add funds page, with the reason shown for rejected ones, rather than on a separate Deposits page. Crypto invoices join that page in Phase 5. The 5-per-hour limit counts submissions that pass validation.
+45. **Deposits list (§5.2):** a customer's deposits are listed on the Add funds page, with the reason shown for rejected ones, rather than on a separate Deposits page. Crypto invoices are listed on the same page. The 5-per-hour limit counts submissions that pass validation.
 46. **Admin queue (§5.3):** pending deposits show as a count badge in the admin navigation, and the queue opens filtered to pending; there's no dashboard widget yet. Approving and rejecting lock the deposit row, so two admins can't review the same deposit twice. The ledger reference `{method}:{TRXID}` makes a double credit impossible anyway.
 47. **Emails (§5.4):** "deposit approved/rejected" is a queued mail notification, so production needs a real `MAIL_MAILER` and a running queue worker.
+
+**27 Nov 2026: Phase 5 (crypto deposits).**
+
+48. **Payment page (§8.3.4, §8.3.7):** the page is a Livewire page at `/account/crypto/{invoice}`, next to the other account pages, instead of `/wallet/crypto/{invoice}`. It refreshes itself with `wire:poll.15s` until the invoice is paid, so there is no separate `/status` endpoint. The claim is a Livewire action rather than a `POST /claim` route. It is still limited to 6 a minute, per customer rather than per invoice, so opening several invoices doesn't multiply the limit. The page shows the time the invoice stays open until, in the customer's own time zone, instead of a ticking countdown.
+49. **Unmatched alerts (§8.3.8):** the Telegram alert for an unmatched transfer is sent only when the TRON scanner finds one. A failed customer claim doesn't send one, so customers can't flood the admin chat. The transfer still appears in the admin "Crypto transfers" queue and its menu badge.
+50. **Assign to user (§8.3.8):** an admin assigning an unmatched transfer credits it with the same ledger reference, `{network}:{tx_hash}`, as an automatic match. A transfer can therefore never be credited twice, whether by hand or automatically.
+51. **TronGrid (§8.3.5):** the endpoint, header, query parameters, `meta.fingerprint` paging and item fields match TronGrid's current docs. The scanner also skips any item whose `value` isn't a number. The plan's `Hex::toDec` used `hexdec()`, which returns a float, and accepted non-hex input. The helper now uses `intval($digit, 16)` and rejects anything that isn't hex.
+52. **Before launch:** check both USDT contract addresses in `config/crypto.php` against Tether's site, tronscan.org and bscscan.com, and make one small real deposit on each network. The tests only use faked responses.
 
 ---
 

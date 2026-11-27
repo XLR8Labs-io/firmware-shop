@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasLabel;
 
 /**
- * Why money moved. Crypto deposit and transfer types arrive with the phases that add them.
+ * Why money moved. Transfer types arrive with the phases that add them.
  */
 enum LedgerEntryType: string implements HasLabel
 {
@@ -21,6 +21,8 @@ enum LedgerEntryType: string implements HasLabel
 
     case DepositNagad = 'deposit_nagad';
 
+    case DepositCrypto = 'deposit_crypto';
+
     public function getLabel(): string
     {
         return match ($this) {
@@ -30,6 +32,7 @@ enum LedgerEntryType: string implements HasLabel
             self::AdminDebit => 'Removed by admin',
             self::DepositBkash => 'bKash deposit',
             self::DepositNagad => 'Nagad deposit',
+            self::DepositCrypto => 'Crypto deposit',
         };
     }
 }

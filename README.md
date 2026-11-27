@@ -39,6 +39,16 @@ Files live in a Google Workspace Shared Drive and are read by a service account:
 
 In the admin panel, **Drive imports** brings a Drive folder's folders and files into the catalogue as drafts, and a product's **Drive link or file ID** field fills in the file details from a share link. Imports run on the queue, so a queue worker must be running.
 
+## Crypto deposits
+
+Customers can pay in USDT on TRON (TRC20) or BNB Smart Chain (BEP20). Each deposit gets its own amount, such as 10.37 USDT, so the amount alone shows who paid.
+
+- Set `CRYPTO_TRON_ADDRESS` and `CRYPTO_BSC_ADDRESS` to the store's own wallet addresses. Use self-custody wallets, not exchange deposit addresses. Only public addresses go here; never put a private key or seed phrase on the server. If a network has no address, its tab tells customers it isn't available.
+- TRON payments are found automatically every minute through TronGrid. Get a free API key at trongrid.io and set `TRONGRID_API_KEY`. This needs the scheduler running.
+- BEP20 payments are confirmed when the customer pastes their transaction hash. The hash is checked on a public BSC node (`BSC_RPC_URL`).
+- `CRYPTO_MIN_USD` sets the smallest deposit.
+- Payments that match no deposit, such as an underpayment, appear under **Crypto transfers** in the admin panel. An admin can assign one to a customer from there.
+
 ## Telegram alerts
 
 Customers' deposit emails need a real mail setup (`MAIL_MAILER` and friends) and the queue worker.

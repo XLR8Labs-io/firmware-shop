@@ -97,6 +97,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
         return $this->hasMany(MfsDeposit::class);
     }
 
+    /**
+     * @return HasMany<CryptoInvoice, $this>
+     */
+    public function cryptoInvoices(): HasMany
+    {
+        return $this->hasMany(CryptoInvoice::class);
+    }
+
     public function ownsProduct(Product $product): bool
     {
         return $this->purchases()

@@ -2,8 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Enums\CryptoNetwork;
 use App\Enums\MfsMethod;
 use App\Models\User;
+use App\Services\Crypto\CryptoException;
+use App\Services\Crypto\InvoiceService;
 use App\Services\Deposits\DepositNotAllowed;
 use App\Services\Deposits\MfsDepositService;
 use App\Services\SiteSettings;
@@ -30,6 +33,8 @@ class AddFunds extends Component
     public string $trxId = '';
 
     public ?string $notice = null;
+
+    public string $usdAmount = '';
 
     /**
      * Pre-fill the taka amount from a dollar shortfall, e.g. coming from the Buy box.
@@ -105,13 +110,43 @@ class AddFunds extends Component
         ]);
     }
 
+    /**
+     * Crypto: reserve an exact USDT amount and go to its payment page.
+     */
+    public function createInvoice(InvoiceService $invoices): void
+    {
+        $user = $this->customer();
+        abort_unless($user->hasVerifiedEmail(), 403);
+
+        $network = CryptoNetwork::tryFrom($this->method);
+        abort_if($network === null, 404);
+
+        $this->validate(['usdAmount' => ['required', 'regex:/^\d{1,9}(\.\d{1,2})?$/']], [
+            'usdAmount.regex' => __('Enter an amount in dollars, such as 25 or 12.50.'),
+        ], ['usdAmount' => __('amount')]);
+
+        try {
+            $invoice = $invoices->create($user, $network, $this->usdAmount);
+        } catch (CryptoException $exception) {
+            $this->addError('usdAmount', $exception->getMessage());
+
+            return;
+        }
+
+        $this->redirectRoute('account.crypto', $invoice);
+    }
+
     public function render(SiteSettings $settings, WalletService $wallet): View
     {
-        $method = MfsMethod::tryFrom($this->method) ?? MfsMethod::Bkash;
-        $account = $settings->mfsAccount($method);
+        $network = CryptoNetwork::tryFrom($this->method);
+        $method = $network === null ? (MfsMethod::tryFrom($this->method) ?? MfsMethod::Bkash) : null;
+        $account = $settings->mfsAccount($method ?? MfsMethod::Bkash);
 
         return view('livewire.add-funds', [
             'currentMethod' => $method,
+            'cryptoNetwork' => $network,
+            'cryptoMinimum' => InvoiceService::minimumDeposit(),
+            'invoices' => $this->customer()->cryptoInvoices()->latest('id')->limit(10)->get(),
             'account' => $account,
             'instruction' => MfsMethod::instructionFor($account['type']),
             'rate' => $settings->bdtPerUsd(),

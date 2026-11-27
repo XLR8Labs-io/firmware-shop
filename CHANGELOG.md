@@ -2,6 +2,8 @@
 
 ## 27 November 2026
 
+- Admins can import a whole Google Drive folder into the catalogue: its folders become site folders and its files arrive as drafts at a chosen price. Running an import again only adds what is new, and the admin panel shows each import's progress.
+- When adding a file by hand, pasting its Google Drive share link fills in the name, size and checksum.
 - Admins can build the catalogue in the admin panel: folders for brands, series and models (with images, ordering and a visibility switch that also hides everything inside), and files with prices, passwords and their Google Drive details. Several files can be published, unpublished, featured, repriced or moved at once.
 - The site now carries the IT-Firmware.com brand: its logo in the header, on the sign-in pages, in the account area and in the admin panel, plus its icons for browser tabs and phone home screens. Buttons and links use the brand blue.
 - The admin Settings page now starts with the name the site is already using, so it no longer looks empty.

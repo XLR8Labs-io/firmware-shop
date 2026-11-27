@@ -28,6 +28,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+     * A service account that is a member of the store's Shared Drive. The key file
+     * path may be relative to the project root and must stay outside public/.
+     */
+    'google_drive' => [
+        'credentials' => env('GOOGLE_SA_JSON', 'storage/app/private/google-sa.json'),
+        'shared_drive_id' => env('GOOGLE_SHARED_DRIVE_ID'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

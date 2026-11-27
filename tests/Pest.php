@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /*
@@ -55,4 +56,41 @@ function actingAsAdmin(): User
     test()->actingAs($admin);
 
     return $admin;
+}
+
+/**
+ * Point the Drive client at a throwaway service account key and fake Google's token
+ * endpoint, plus any Drive responses given. Any other outgoing request fails the test.
+ *
+ * @param  array<string, mixed>  $driveResponses
+ */
+function fakeGoogleDrive(array $driveResponses = []): void
+{
+    static $keyFile = null;
+
+    if ($keyFile === null) {
+        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+        openssl_pkey_export($key, $privateKey);
+
+        $keyFile = tempnam(sys_get_temp_dir(), 'google-sa-');
+        file_put_contents($keyFile, json_encode([
+            'type' => 'service_account',
+            'client_email' => 'store@test-project.iam.gserviceaccount.com',
+            'client_id' => '1234567890',
+            'private_key_id' => 'test-key',
+            'private_key' => $privateKey,
+            'token_uri' => 'https://oauth2.googleapis.com/token',
+        ]));
+    }
+
+    config([
+        'services.google_drive.credentials' => $keyFile,
+        'services.google_drive.shared_drive_id' => 'shared-drive-id',
+    ]);
+
+    Http::preventStrayRequests();
+    Http::fake([
+        'oauth2.googleapis.com/token' => Http::response(['access_token' => 'test-access-token', 'expires_in' => 3599, 'token_type' => 'Bearer']),
+        ...$driveResponses,
+    ]);
 }

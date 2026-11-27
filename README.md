@@ -24,10 +24,20 @@ You need PHP 8.3 or newer with the `bcmath`, `intl` and `pdo_mysql` extensions, 
 
 2. Copy `.env.example` to `.env` and set `DB_PASSWORD`.
 3. Run `composer setup`. It installs dependencies, generates the app key, runs the migrations and builds the frontend.
-4. Run `composer dev` to start the app, queue worker and Vite together.
+4. Run `php artisan storage:link` once so uploaded folder images are served, then `composer dev` to start the app, queue worker and Vite together.
 5. Register an account on the site and confirm its email address (locally, the link is written to `storage/logs/laravel.log`). Then make it an admin with `php artisan app:make-admin you@example.com`. Before the admin panel at `/admin` will open, turn on two-factor authentication under Settings → Security.
 
 `composer test` runs Pint, PHPStan and the test suite. Tests use the `it_firmware_test` database.
+
+## Google Drive
+
+Files live in a Google Workspace Shared Drive and are read by a service account:
+
+1. In Google Cloud Console, enable the Google Drive API, create a service account and download its JSON key.
+2. Add the service account's email to the Shared Drive as a Viewer.
+3. Put the key at `storage/app/private/google-sa.json` (or set `GOOGLE_SA_JSON` to its path) and set `GOOGLE_SHARED_DRIVE_ID`. The key is git-ignored; never put it under `public/`.
+
+In the admin panel, **Drive imports** brings a Drive folder's folders and files into the catalogue as drafts, and a product's **Drive link or file ID** field fills in the file details from a share link. Imports run on the queue, so a queue worker must be running.
 
 ## Deployment
 

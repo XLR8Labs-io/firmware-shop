@@ -56,6 +56,12 @@ _(Claude Code: record changes to this plan here.)_
 22. **Deleting (§5.3):** products are soft-deleted only (no permanent delete), because purchases and download logs will point at them. A folder can only be deleted once it holds no folders or files (deleted files included); the database also refuses. Admins can't move a folder inside itself or its own subfolders. "Unpublish" sets the status to `hidden`; `draft` means never published.
 23. **Code layout:** enums live in `app/Enums` (the Laravel convention), starting with `ProductStatus`.
 
+**27 Nov 2026: Phase 1, Google Drive.**
+
+24. **Drive library (§3, §6.2):** `google/auth` (the official Google auth library, 3 small packages) replaces `google/apiclient`, which ships generated clients for every Google API. `App\Services\Drive\DriveClient` calls the Drive v3 REST API with Laravel's HTTP client and passes google/auth an HTTP handler built on the same client. The service-account token request and every Drive call can therefore be faked with `Http::fake()`, and the tests use `Http::preventStrayRequests()`. The access token is cached until a minute before it expires.
+25. **Shared Drive listing (§5.3, checked against the Drive v3 docs on 27 Nov 2026):** besides `supportsAllDrives=true` and `includeItemsFromAllDrives=true`, `files.list` sends `corpora=drive` with `driveId=GOOGLE_SHARED_DRIVE_ID`, since Google requires `driveId` with that corpus. Boolean parameters are sent as the string `true`. `size` comes back as a string and is missing for folders; `md5Checksum` is missing for files without binary content.
+26. **Drive Import (§5.3):** an import brings the *contents* of a Drive folder into a chosen site folder (or the top level). Drive folders become site folders (matched by `drive_folder_id`) and files become draft products at the chosen default price (matched by `drive_file_id`, deleted products included, so a deleted file is never brought back). Existing folders and products are left exactly as admins edited them, and `createOrFirst` makes overlapping imports safe. Google-native items (Docs, shortcuts) are skipped and counted, as are files at the top level with no site folder to go into. Progress is saved per Drive folder in `drive_imports` and shown in the admin panel, which polls while an import is running. The job doesn't retry automatically; starting it again is safe.
+
 ---
 
 ## 1. Project summary & locked decisions

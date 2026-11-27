@@ -8,6 +8,7 @@ use App\Models\Folder;
 use App\Models\Product;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
 function validProductForm(Folder $folder): array
@@ -105,4 +106,44 @@ test('several products can be moved to another folder at once', function () {
         ->callAction(TestAction::make('moveToFolder')->table()->bulk(), data: ['folder_id' => $target->id]);
 
     expect($products->map(fn (Product $product) => $product->refresh()->folder_id)->unique()->all())->toBe([$target->id]);
+});
+
+test('pasting a Drive share link fills in the file details', function () {
+    fakeGoogleDrive([
+        'www.googleapis.com/drive/v3/files/*' => Http::response([
+            'id' => '1AbCdEfGhIjK',
+            'name' => 'A155F_COMBINATION.zip',
+            'mimeType' => 'application/zip',
+            'size' => '2147483648',
+            'md5Checksum' => '0cc175b9c0f1b6a831c399e269772661',
+        ]),
+    ]);
+    actingAsAdmin();
+
+    Livewire::test(CreateProduct::class)
+        ->fillForm(['drive_link' => 'https://drive.google.com/file/d/1AbCdEfGhIjK/view?usp=sharing'])
+        ->assertSchemaStateSet([
+            'drive_file_id' => '1AbCdEfGhIjK',
+            'file_name' => 'A155F_COMBINATION.zip',
+            'file_size' => 2147483648,
+            'md5' => '0cc175b9c0f1b6a831c399e269772661',
+            'mime_type' => 'application/zip',
+            'title' => 'A155F_COMBINATION',
+        ]);
+});
+
+test('a Google Docs link is refused because there is no file to download', function () {
+    fakeGoogleDrive([
+        'www.googleapis.com/drive/v3/files/*' => Http::response([
+            'id' => '1AbCdEfGhIjK',
+            'name' => 'Flashing notes',
+            'mimeType' => 'application/vnd.google-apps.document',
+        ]),
+    ]);
+    actingAsAdmin();
+
+    Livewire::test(CreateProduct::class)
+        ->fillForm(['drive_link' => 'https://docs.google.com/document/d/1AbCdEfGhIjK/edit'])
+        ->assertNotified('That is a folder or a Google Docs file, not a file people can download.')
+        ->assertSchemaStateSet(['drive_file_id' => null, 'title' => null]);
 });

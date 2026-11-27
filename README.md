@@ -41,6 +41,8 @@ In the admin panel, **Drive imports** brings a Drive folder's folders and files 
 
 ## Telegram alerts
 
+Customers' deposit emails need a real mail setup (`MAIL_MAILER` and friends) and the queue worker.
+
 Set `TELEGRAM_BOT_TOKEN` (from @BotFather) and `TELEGRAM_ADMIN_CHAT_ID` to receive admin alerts, for example when Google limits a file's downloads. Alerts are sent by the queue worker. Leave both empty to turn alerts off.
 
 ## Deployment

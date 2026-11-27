@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MfsMethod;
 use App\Models\Setting;
 use Illuminate\Container\Attributes\Scoped;
 use Illuminate\Support\Facades\Cache;
@@ -48,6 +49,39 @@ class SiteSettings
             __('Facebook') => $this->get('facebook_url'),
             __('YouTube') => $this->get('youtube_url'),
         ]);
+    }
+
+    /**
+     * Taka per dollar for bKash and Nagad deposits, or null while not set.
+     *
+     * @return numeric-string|null
+     */
+    public function bdtPerUsd(): ?string
+    {
+        $rate = $this->get('bdt_per_usd');
+
+        return is_numeric($rate) && bccomp($rate, '0', 4) > 0 ? bcadd($rate, '0', 4) : null;
+    }
+
+    /**
+     * @return numeric-string
+     */
+    public function mfsMinBdt(): string
+    {
+        $minimum = $this->get('mfs_min_bdt');
+
+        return is_numeric($minimum) && bccomp($minimum, '0', 2) > 0 ? bcadd($minimum, '0', 2) : '100.00';
+    }
+
+    /**
+     * @return array{number: string|null, type: string}
+     */
+    public function mfsAccount(MfsMethod $method): array
+    {
+        return [
+            'number' => $this->get("{$method->value}_number"),
+            'type' => $this->get("{$method->value}_account_type") ?? 'personal',
+        ];
     }
 
     public function downloadLinkHours(): int

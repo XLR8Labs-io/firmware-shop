@@ -93,6 +93,14 @@ _(Claude Code: record changes to this plan here.)_
 41. **Bans (§5.2):** "banned users can't download" waits for the ban columns, which have no phase of their own yet. Downloads already require a verified email.
 42. **Not yet proven:** the plan's "multi-GB file downloads and resumes in a browser and IDM" needs the real Shared Drive credentials. Tests cover the behaviour with faked Drive responses (full and `206` range responses, mirror and busy paths), and the real check belongs in the go-live test (§13).
 
+**27 Nov 2026: Phase 4, bKash and Nagad.**
+
+43. **Instructions per account type (§8.1):** personal accounts get "Send Money", merchant accounts "Payment", and agent accounts "Cash Out" (the plan didn't say what agent accounts need).
+44. **Amounts:** dollars are taka ÷ the rate, rounded down to the cent (`bcdiv`, scale 2). The rate is stored with 4 decimals and snapshotted on each deposit. An admin's corrected amount is converted at that snapshot. A dollar shortfall from the Buy box becomes a taka amount rounded *up*, so the deposit covers it.
+45. **Deposits list (§5.2):** a customer's deposits are listed on the Add funds page, with the reason shown for rejected ones, rather than on a separate Deposits page. Crypto invoices join that page in Phase 5. The 5-per-hour limit counts submissions that pass validation.
+46. **Admin queue (§5.3):** pending deposits show as a count badge in the admin navigation, and the queue opens filtered to pending; there's no dashboard widget yet. Approving and rejecting lock the deposit row, so two admins can't review the same deposit twice. The ledger reference `{method}:{TRXID}` makes a double credit impossible anyway.
+47. **Emails (§5.4):** "deposit approved/rejected" is a queued mail notification, so production needs a real `MAIL_MAILER` and a running queue worker.
+
 ---
 
 ## 1. Project summary & locked decisions

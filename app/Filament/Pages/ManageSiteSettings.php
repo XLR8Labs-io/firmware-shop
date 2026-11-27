@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Services\SiteSettings;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -66,6 +67,23 @@ class ManageSiteSettings extends Page
                                 ->maxLength(500)
                                 ->rows(3),
                         ]),
+                    Section::make('bKash and Nagad')
+                        ->description('Customers pay into these accounts and report the TrxID; you approve each deposit.')
+                        ->schema([
+                            TextInput::make('bdt_per_usd')
+                                ->label('Taka per dollar')
+                                ->helperText('Saved with each deposit, so changing it never affects deposits already submitted.')
+                                ->regex('/^\d{1,6}(\.\d{1,4})?$/'),
+                            TextInput::make('mfs_min_bdt')
+                                ->label('Smallest deposit (BDT)')
+                                ->regex('/^\d{1,9}(\.\d{1,2})?$/')
+                                ->placeholder('100'),
+                            TextInput::make('bkash_number')->label('bKash number')->regex('/^01\d{9}$/'),
+                            Select::make('bkash_account_type')->label('bKash account type')->options(self::accountTypes()),
+                            TextInput::make('nagad_number')->label('Nagad number')->regex('/^01\d{9}$/'),
+                            Select::make('nagad_account_type')->label('Nagad account type')->options(self::accountTypes()),
+                        ])
+                        ->columns(2),
                     Section::make('Downloads')
                         ->schema([
                             TextInput::make('download_link_hours')
@@ -123,6 +141,14 @@ class ManageSiteSettings extends Page
             ->success()
             ->title('Settings saved')
             ->send();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function accountTypes(): array
+    {
+        return ['personal' => 'Personal (customers use Send Money)', 'agent' => 'Agent (customers use Cash Out)', 'merchant' => 'Merchant (customers use Payment)'];
     }
 
     /**

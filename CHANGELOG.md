@@ -2,6 +2,8 @@
 
 ## 27 November 2026
 
+- Customers can add money with bKash or Nagad: the Add funds page shows the store's number, what to choose in the app, today's rate and how many dollars they will receive. They enter the amount, their number and the TrxID, and see each deposit's status. The Buy box links there with the missing amount filled in.
+- Admins check deposits in a queue (with a count in the menu), can correct the amount, and approve or reject with a reason. The customer gets an email either way, and admins get a Telegram alert for each new deposit. The rate, numbers, account types and minimum are set on the Settings page.
 - Customers can download free files and files they bought. Downloads come through a short-lived link that also works in download managers and can be resumed. Each link works from only a few places, and each customer has a daily download limit; admins can change both.
 - If Google Drive temporarily blocks a popular file, its mirror copy is used. If there is none, the customer is told to try again later and admins get a Telegram alert.
 - Admins can see every download, filter them by customer or file, and spot links used from more than one place. The dashboard shows how much was downloaded this month.

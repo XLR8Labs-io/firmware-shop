@@ -30,7 +30,8 @@
             @else
                 <flux:callout variant="warning" icon="wallet" :heading="__('You need $:amount more.', ['amount' => $this->shortfall])">
                     <flux:callout.text>
-                        {{ __('Add funds to your wallet, then come back to buy this file.') }}
+                        <a href="{{ route('account.add-funds', ['usd' => $this->shortfall]) }}" class="font-medium underline">{{ __('Add funds to your wallet') }}</a>,
+                        {{ __('then come back to buy this file.') }}
                         @if (filled($supportContact))
                             <span class="mt-2 block whitespace-pre-line">{{ $supportContact }}</span>
                         @endif

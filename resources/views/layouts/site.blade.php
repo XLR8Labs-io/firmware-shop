@@ -52,6 +52,9 @@
                             <flux:menu.item :href="route('account.purchases')" icon="shopping-bag" wire:navigate>
                                 {{ __('My purchases') }}
                             </flux:menu.item>
+                            <flux:menu.item :href="route('account.add-funds')" icon="plus-circle" wire:navigate>
+                                {{ __('Add funds') }}
+                            </flux:menu.item>
                             <flux:menu.item :href="route('account.wallet')" icon="wallet" wire:navigate>
                                 {{ __('Wallet') }}
                             </flux:menu.item>

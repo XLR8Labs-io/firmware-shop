@@ -18,6 +18,9 @@
                     <flux:sidebar.item icon="shopping-bag" :href="route('account.purchases')" :current="request()->routeIs('account.purchases')" wire:navigate>
                         {{ __('My purchases') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="plus-circle" :href="route('account.add-funds')" :current="request()->routeIs('account.add-funds')" wire:navigate>
+                        {{ __('Add funds') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="wallet" :href="route('account.wallet')" :current="request()->routeIs('account.wallet')" wire:navigate>
                         {{ __('Wallet') }}
                     </flux:sidebar.item>

@@ -6,6 +6,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\ProductController;
+use App\Livewire\AddFunds;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [CatalogueController::class, 'home'])->name('home');
@@ -30,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
     Route::get('account/purchases', [AccountController::class, 'purchases'])->name('account.purchases');
     Route::get('account/wallet', [AccountController::class, 'wallet'])->name('account.wallet');
+    Route::livewire('account/add-funds', AddFunds::class)->name('account.add-funds');
 });
 
 require __DIR__.'/settings.php';

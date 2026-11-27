@@ -2,6 +2,7 @@
 
 use App\Enums\LedgerEntryType;
 use App\Models\User;
+use App\Services\SiteSettings;
 use App\Services\Wallet\WalletService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -106,4 +107,19 @@ function customerWithBalance(string $amount): User
     app(WalletService::class)->credit($user, $amount, LedgerEntryType::AdminCredit, 'test:seed:'.$user->id);
 
     return $user;
+}
+
+/**
+ * Turn on bKash and Nagad deposits: 1 USD = 122.50 BDT, at least 100 BDT.
+ */
+function openMfsDeposits(): void
+{
+    app(SiteSettings::class)->save([
+        'bdt_per_usd' => '122.50',
+        'mfs_min_bdt' => '100',
+        'bkash_number' => '01711000000',
+        'bkash_account_type' => 'personal',
+        'nagad_number' => '01811000000',
+        'nagad_account_type' => 'merchant',
+    ]);
 }

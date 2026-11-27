@@ -45,7 +45,11 @@ class MfsDepositResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $pending = MfsDeposit::query()->where('status', DepositStatus::Pending)->count();
+        // Online payments still waiting for the customer need nothing from an admin yet.
+        $pending = MfsDeposit::query()
+            ->where('status', DepositStatus::Pending)
+            ->where(fn (Builder $query): Builder => $query->whereNotNull('trx_id')->orWhereNotNull('admin_note'))
+            ->count();
 
         return $pending > 0 ? (string) $pending : null;
     }
@@ -61,8 +65,11 @@ class MfsDepositResource extends Resource
                 TextColumn::make('amount_bdt')->label('BDT')->numeric(2),
                 TextColumn::make('amount_usd')->label('USD')->money('USD'),
                 TextColumn::make('sender_number')->label('From')->searchable(),
-                TextColumn::make('trx_id')->label('TrxID')->searchable()->copyable(),
+                TextColumn::make('trx_id')->label('TrxID')->searchable()->copyable()->placeholder('Not paid yet'),
+                TextColumn::make('source')
+                    ->formatStateUsing(fn (string $state): string => $state === 'piprapay' ? 'Online (PipraPay)' : 'Reported by customer'),
                 TextColumn::make('status')->badge(),
+                TextColumn::make('admin_note')->label('Note')->wrap()->toggleable(),
                 TextColumn::make('reviewedBy.name')->label('Checked by')->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -74,7 +81,8 @@ class MfsDepositResource extends Resource
                 Action::make('approve')
                     ->icon(Heroicon::OutlinedCheck)
                     ->color('success')
-                    ->visible(fn (MfsDeposit $record): bool => $record->status === DepositStatus::Pending)
+                    // An online payment without a TrxID has nothing to check yet; it is credited by PipraPay or rejected.
+                    ->visible(fn (MfsDeposit $record): bool => $record->status === DepositStatus::Pending && $record->trx_id !== null)
                     ->modalDescription(fn (MfsDeposit $record): string => "Check TrxID {$record->trx_id} in the {$record->method->getLabel()} app first. This adds \${$record->amount_usd} to the customer's wallet.")
                     ->schema([
                         TextInput::make('amount_bdt')

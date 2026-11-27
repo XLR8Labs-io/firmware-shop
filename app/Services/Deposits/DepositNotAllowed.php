@@ -33,4 +33,9 @@ class DepositNotAllowed extends RuntimeException
     {
         return new self('This deposit has already been reviewed.');
     }
+
+    public static function gatewayUnavailable(): self
+    {
+        return new self('Online payment is not available right now. Please try again shortly, or pay manually below.');
+    }
 }

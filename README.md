@@ -39,6 +39,17 @@ Files live in a Google Workspace Shared Drive and are read by a service account:
 
 In the admin panel, **Drive imports** brings a Drive folder's folders and files into the catalogue as drafts, and a product's **Drive link or file ID** field fills in the file details from a share link. Imports run on the queue, so a queue worker must be running.
 
+## Online bKash and Nagad payments (PipraPay)
+
+Manual deposits work without this: customers send money and enter the TrxID, and an admin approves it. To credit bKash and Nagad payments automatically, run your own [PipraPay](https://github.com/PipraPay/PipraPay) v3. It is free and self-hosted, and reads payment SMS on an Android phone with its companion app.
+
+1. Install PipraPay on its own subdomain, such as `pay.example.com`, and add the bKash and Nagad gateways you use.
+2. In PipraPay, create an API key with the **Create Payment** and **Verify Payment** scopes.
+3. Add the store's domain under **Domains**; PipraPay refuses return and webhook addresses on other domains.
+4. Set `PIPRAPAY_BASE_URL` (such as `https://pay.example.com`) and `PIPRAPAY_API_KEY`.
+
+PipraPay's webhooks are not signed, so the store never trusts them: every payment is checked again with PipraPay before anything is credited. The scheduler re-checks unfinished payments every 10 minutes. Payments that don't match their deposit stay in the bKash and Nagad queue with a note for an admin.
+
 ## Crypto deposits
 
 Customers can pay in USDT on TRON (TRC20) or BNB Smart Chain (BEP20). Each deposit gets its own amount, such as 10.37 USDT, so the amount alone shows who paid.

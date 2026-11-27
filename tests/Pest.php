@@ -1,7 +1,10 @@
 <?php
 
 use App\Enums\LedgerEntryType;
+use App\Enums\MfsMethod;
+use App\Models\MfsDeposit;
 use App\Models\User;
+use App\Services\Deposits\MfsDepositService;
 use App\Services\SiteSettings;
 use App\Services\Wallet\WalletService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -122,4 +125,59 @@ function openMfsDeposits(): void
         'nagad_number' => '01811000000',
         'nagad_account_type' => 'merchant',
     ]);
+}
+
+/**
+ * Point the PipraPay gateway at a fake install at https://pay.test. Any other outgoing
+ * request fails the test.
+ *
+ * @param  array<string, mixed>  $responses
+ */
+function fakePipraPay(array $responses = []): void
+{
+    config(['services.piprapay.base_url' => 'https://pay.test', 'services.piprapay.api_key' => 'test-api-key']);
+
+    Http::preventStrayRequests();
+    Http::fake($responses);
+}
+
+/**
+ * An online bKash deposit of 1225 BDT ($10.00) waiting at PipraPay as payment "PP123".
+ */
+function openOnlineDeposit(?User $user = null): MfsDeposit
+{
+    $deposit = app(MfsDepositService::class)->openGatewayDeposit($user ?? User::factory()->create(), MfsMethod::Bkash, '1225', '01712345678');
+    $deposit->update(['gateway_payment_id' => 'PP123']);
+
+    return $deposit;
+}
+
+/**
+ * What PipraPay v3's verify API says about the deposit's payment: completed with bKash
+ * unless overridden.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function piprapayPayment(MfsDeposit $deposit, array $overrides = []): array
+{
+    return array_replace([
+        'pp_id' => $deposit->gateway_payment_id,
+        'full_name' => 'Karim',
+        'email_address' => 'karim@example.com',
+        'mobile_number' => '01712345678',
+        'gateway' => 'bKash Personal',
+        'amount' => (float) $deposit->amount_bdt,
+        'fee' => 0,
+        'discount_amount' => 0,
+        'total' => (float) $deposit->amount_bdt,
+        'local_net_amount' => (float) $deposit->amount_bdt,
+        'currency' => 'BDT',
+        'local_currency' => 'BDT',
+        'metadata' => ['deposit_id' => $deposit->id],
+        'sender' => '01712345678',
+        'transaction_id' => 'BKX9QW2E7T',
+        'status' => 'completed',
+        'date' => 'Nov 27, 2026 09:30 PM',
+    ], $overrides);
 }

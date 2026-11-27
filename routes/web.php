@@ -9,6 +9,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PipraPayController;
 use App\Http\Controllers\ProductController;
 use App\Livewire\AddFunds;
 use App\Livewire\CryptoPayment;
@@ -39,12 +40,17 @@ Route::get('dl/{token}/{fileName}', [DownloadController::class, 'stream'])
     ->where('fileName', '.*')
     ->name('downloads.stream');
 Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
+// Excluded from CSRF in bootstrap/app.php. The body is never trusted: it only triggers a check with PipraPay.
+Route::post('webhooks/piprapay', [PipraPayController::class, 'webhook'])
+    ->middleware('throttle:60,1')
+    ->name('webhooks.piprapay');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [AccountController::class, 'dashboard'])->name('dashboard');
     Route::get('account/purchases', [AccountController::class, 'purchases'])->name('account.purchases');
     Route::get('account/wallet', [AccountController::class, 'wallet'])->name('account.wallet');
     Route::livewire('account/add-funds', AddFunds::class)->name('account.add-funds');
+    Route::get('account/deposits/{deposit}/paid', [PipraPayController::class, 'returned'])->name('deposits.piprapay.return');
     Route::livewire('account/crypto/{invoice}', CryptoPayment::class)->name('account.crypto');
     Route::livewire('account/send-balance', TransferBalance::class)->name('account.send-balance');
 });

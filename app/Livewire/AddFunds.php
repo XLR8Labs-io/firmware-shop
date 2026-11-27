@@ -9,6 +9,7 @@ use App\Services\Crypto\CryptoException;
 use App\Services\Crypto\InvoiceService;
 use App\Services\Deposits\DepositNotAllowed;
 use App\Services\Deposits\MfsDepositService;
+use App\Services\Deposits\PipraPayGateway;
 use App\Services\SiteSettings;
 use App\Services\Wallet\WalletService;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,9 @@ class AddFunds extends Component
      */
     public function mount(SiteSettings $settings): void
     {
+        $notice = session('deposit_notice');
+        $this->notice = is_string($notice) ? $notice : null;
+
         $usd = request()->query('usd');
         $rate = $settings->bdtPerUsd();
 
@@ -69,19 +73,7 @@ class AddFunds extends Component
         $user = $this->customer();
         abort_unless($user->hasVerifiedEmail(), 403);
 
-        $this->validate([
-            'method' => ['required', Rule::enum(MfsMethod::class)],
-            'amountBdt' => ['required', 'regex:/^\d{1,9}(\.\d{1,2})?$/'],
-            'senderNumber' => ['required', 'regex:/^01\d{9}$/'],
-            'trxId' => ['required', 'alpha_num:ascii', 'between:6,20'],
-        ], [
-            'amountBdt.regex' => __('Enter the amount in taka, such as 1250.'),
-            'senderNumber.regex' => __('Enter the 11-digit number you paid from, starting with 01.'),
-        ], [
-            'amountBdt' => __('amount'),
-            'senderNumber' => __('number'),
-            'trxId' => __('TrxID'),
-        ]);
+        $this->validateDeposit(withTrxId: true);
 
         $rateLimitKey = "mfs-deposit:{$user->id}";
 
@@ -107,6 +99,60 @@ class AddFunds extends Component
         $this->notice = __('Thanks. We will check TrxID :trx and add $:amount to your wallet, usually within a few hours.', [
             'trx' => $deposit->trx_id,
             'amount' => $deposit->amount_usd,
+        ]);
+    }
+
+    /**
+     * bKash or Nagad through PipraPay: open a deposit and go to PipraPay to pay it.
+     * The wallet is credited once PipraPay confirms the payment.
+     */
+    public function payOnline(PipraPayGateway $gateway): void
+    {
+        $user = $this->customer();
+        abort_unless($user->hasVerifiedEmail(), 403);
+
+        $this->validateDeposit(withTrxId: false);
+
+        $rateLimitKey = "mfs-online:{$user->id}";
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 10)) {
+            $this->addError('amountBdt', __('You have started ten payments in the last hour. Please try again later.'));
+
+            return;
+        }
+
+        RateLimiter::hit($rateLimitKey, 3600);
+
+        try {
+            $checkoutUrl = $gateway->checkout($user, MfsMethod::from($this->method), $this->amountBdt, $this->senderNumber);
+        } catch (DepositNotAllowed $exception) {
+            $this->addError('amountBdt', $exception->getMessage());
+
+            return;
+        }
+
+        $this->redirect($checkoutUrl);
+    }
+
+    private function validateDeposit(bool $withTrxId): void
+    {
+        $rules = [
+            'method' => ['required', Rule::enum(MfsMethod::class)],
+            'amountBdt' => ['required', 'regex:/^\d{1,9}(\.\d{1,2})?$/'],
+            'senderNumber' => ['required', 'regex:/^01\d{9}$/'],
+        ];
+
+        if ($withTrxId) {
+            $rules['trxId'] = ['required', 'alpha_num:ascii', 'between:6,20'];
+        }
+
+        $this->validate($rules, [
+            'amountBdt.regex' => __('Enter the amount in taka, such as 1250.'),
+            'senderNumber.regex' => __('Enter the 11-digit number you pay from, starting with 01.'),
+        ], [
+            'amountBdt' => __('amount'),
+            'senderNumber' => __('number'),
+            'trxId' => __('TrxID'),
         ]);
     }
 
@@ -148,6 +194,7 @@ class AddFunds extends Component
             'cryptoMinimum' => InvoiceService::minimumDeposit(),
             'invoices' => $this->customer()->cryptoInvoices()->latest('id')->limit(10)->get(),
             'account' => $account,
+            'payOnline' => PipraPayGateway::isEnabled(),
             'instruction' => MfsMethod::instructionFor($account['type']),
             'rate' => $settings->bdtPerUsd(),
             'minimumBdt' => $settings->mfsMinBdt(),

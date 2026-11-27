@@ -132,6 +132,43 @@ _(Claude Code: record changes to this plan here.)_
     - The recipient gets no email.
 58. **Markdown:** product descriptions, announcements, blog posts and pages all render through one Blade component, `<x-markdown>`. It escapes raw HTML and drops unsafe links. Images uploaded in the admin's Markdown editor go to the public disk.
 
+**27 Nov 2026: Phase 7 (PipraPay).** The API was checked against PipraPay's source on GitHub, because docs.piprapay.com did not resolve at the time.
+
+59. **PipraPay version (§8.2):**
+    - PipraPay's current release is **v3.0.0** (May 2026, repo `PipraPay/PipraPay`), and the integration targets it.
+    - The official `laravel-sdk-piprapay-gateway` is written for the older V2 API and was not used. It calls `/api/create-charge` and `/api/verify-payments` with the header `mh-piprapay-api-key`, and it leaves out the required field `return_type`.
+    - v3 instead has:
+        - `POST {base}/api/checkout/redirect`, with `full_name`, `email_address`, `mobile_number`, `amount`, `currency`, `metadata`, `return_url` and `webhook_url`. It returns `pp_id` and `pp_url`.
+        - `POST {base}/api/verify-payment`, with `pp_id`. It returns `pp_id`, `gateway`, `amount`, `fee`, `discount_amount`, `total`, `local_net_amount`, `currency`, `local_currency`, `metadata`, `sender`, `transaction_id`, `status` and `date`.
+    - Requests authenticate with the header `MHS-PIPRAPAY-API-KEY`.
+    - The API key needs the "Create Payment" and "Verify Payment" scopes.
+    - The store's domain must be whitelisted under PipraPay's **Domains**, or PipraPay refuses the return and webhook URLs.
+60. **Webhooks are not signed (§8.2):**
+    - v3 posts the same JSON as the verify response, with no secret, header or signature. `PIPRAPAY_WEBHOOK_SECRET` is therefore dropped.
+    - The webhook is used only to look up the deposit by `pp_id`, and the payment is always re-checked with `verify-payment`. A forged webhook can at most trigger that check.
+    - The route `/webhooks/piprapay` is excluded from CSRF and limited to 60 requests a minute.
+61. **TrxID (§8.2):**
+    - The verify response returns the bKash/Nagad TrxID as `transaction_id`, so exactly-once across both paths works as planned and the owner didn't need to be asked.
+    - PipraPay puts `--` there before payment, and the link to an uploaded slip for slip-verified payments. Only a value matching `^[A-Z0-9]{6,20}$` is accepted; anything else is held for an admin.
+62. **Status (§8.2):**
+    - Only `completed` is credited. In v3 that means the payment was matched to an SMS.
+    - `pending` means the customer typed a TrxID that no SMS has matched yet, and is never credited.
+    - `canceled` closes the deposit without emailing the customer.
+    - `initiated` waits.
+63. **Checks before crediting:**
+    - The verify answer must have the same `pp_id`, `metadata.deposit_id`, currency `BDT`, the same amount, and a gateway named bKash or Nagad. The customer picks the gateway on PipraPay's page, and the deposit takes the method PipraPay reports.
+    - If anything differs, the deposit stays pending with the reason as its note, and the admins get one Telegram alert. The bKash/Nagad menu count includes these.
+64. **Where the code lives (§8.2):** `App\Services\Deposits\PipraPayGateway` (the plan said `App\Payments`), next to `MfsDepositService`. That service keeps the exactly-once rules in `openGatewayDeposit()` and `settleGatewayDeposit()`.
+65. **Lost webhooks:**
+    - v3 retries a webhook only a limited number of times; the default is once.
+    - A scheduled job, `piprapay-check-open-payments`, checks unfinished online deposits from the last two days every 10 minutes.
+    - The customer's return page (`/account/deposits/{id}/paid`) checks too.
+66. **Add funds page:**
+    - When PipraPay is set up, the bKash and Nagad tabs offer "Pay online" first. The manual TrxID form stays available under "Or send it yourself and enter the TrxID".
+    - Online deposits are limited to 10 an hour per customer.
+    - In the admin queue, Approve is hidden for online deposits that have no TrxID yet.
+67. **Still to do before launch:** one real 10 BDT payment on each of bKash and Nagad through the live PipraPay install. This is the Phase 7 acceptance item that only a real payment can prove; the tests use faked PipraPay responses.
+
 ---
 
 ## 1. Project summary & locked decisions
@@ -762,7 +799,6 @@ CRYPTO_MIN_USD=5
 
 PIPRAPAY_BASE_URL=
 PIPRAPAY_API_KEY=
-PIPRAPAY_WEBHOOK_SECRET=
 
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_ADMIN_CHAT_ID=

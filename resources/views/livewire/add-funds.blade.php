@@ -15,29 +15,52 @@
         @endforeach
     </div>
 
+    @if ($notice)
+        <flux:callout variant="success" icon="check-circle" :heading="$notice" />
+    @endif
+
     @if ($currentMethod !== null)
-        @if ($rate === null || blank($account['number']))
+        @if ($rate === null || (blank($account['number']) && ! $payOnline))
             <flux:callout variant="warning" icon="exclamation-triangle" :heading="__(':method deposits are not available right now. Please contact support.', ['method' => $currentMethod->getLabel()])" />
         @else
-            <ol class="list-decimal space-y-2 pl-5">
-                <li>{!! __('In the :method app, choose <strong>:instruction</strong> to <strong class="font-mono">:number</strong> (:type account).', ['method' => e($currentMethod->getLabel()), 'instruction' => e($instruction), 'number' => e($account['number']), 'type' => e(__($account['type']))]) !!}</li>
-                <li>{{ __('Send the amount in taka. Today’s rate is 1 USD = :rate BDT; the smallest deposit is :minimum BDT.', ['rate' => rtrim(rtrim($rate, '0'), '.'), 'minimum' => $minimumBdt]) }}</li>
-                <li>{{ __('Enter what you sent below, with the TrxID from the confirmation SMS.') }}</li>
-            </ol>
+            <flux:text>{{ __('Today’s rate is 1 USD = :rate BDT; the smallest deposit is :minimum BDT.', ['rate' => rtrim(rtrim($rate, '0'), '.'), 'minimum' => $minimumBdt]) }}</flux:text>
 
-            @if ($notice)
-                <flux:callout variant="success" icon="check-circle" :heading="$notice" />
+            @if ($payOnline)
+                <div class="space-y-4">
+                    <flux:heading size="lg" level="2">{{ __('Pay online') }}</flux:heading>
+                    <flux:text>{{ __('Pay on the next page with bKash or Nagad. Your wallet is topped up as soon as the payment is confirmed.') }}</flux:text>
+                    <form wire:submit="payOnline" class="space-y-5">
+                        <flux:input wire:model.live.debounce.400ms="amountBdt" :label="__('Amount (BDT)')" inputmode="decimal" required />
+                        @if ($this->previewUsd !== null)
+                            <flux:text>{{ __('You will receive :amount in your wallet.', ['amount' => '$'.$this->previewUsd]) }}</flux:text>
+                        @endif
+                        <flux:input wire:model="senderNumber" :label="__('Your :method number', ['method' => $currentMethod->getLabel()])" placeholder="01XXXXXXXXX" inputmode="numeric" maxlength="11" required />
+                        <flux:button type="submit" variant="primary">{{ __('Continue to payment') }}</flux:button>
+                    </form>
+                </div>
             @endif
 
-            <form wire:submit="submit" class="space-y-5">
-                <flux:input wire:model.live.debounce.400ms="amountBdt" :label="__('Amount sent (BDT)')" inputmode="decimal" required />
-                @if ($this->previewUsd !== null)
-                    <flux:text>{{ __('You will receive :amount in your wallet.', ['amount' => '$'.$this->previewUsd]) }}</flux:text>
-                @endif
-                <flux:input wire:model="senderNumber" :label="__('Your :method number', ['method' => $currentMethod->getLabel()])" placeholder="01XXXXXXXXX" inputmode="numeric" maxlength="11" required />
-                <flux:input wire:model="trxId" :label="__('TrxID')" maxlength="20" required />
-                <flux:button type="submit" variant="primary">{{ __('Submit deposit') }}</flux:button>
-            </form>
+            @if (filled($account['number']))
+                {{-- With online payment on, sending it yourself is the fallback and starts folded away. --}}
+                <details wire:ignore.self @if (! $payOnline) open @endif>
+                    <summary @class(['cursor-pointer font-medium text-accent-content hover:underline', 'hidden' => ! $payOnline])>{{ __('Or send it yourself and enter the TrxID') }}</summary>
+                    <ol class="mt-4 list-decimal space-y-2 pl-5">
+                        <li>{!! __('In the :method app, choose <strong>:instruction</strong> to <strong class="font-mono">:number</strong> (:type account).', ['method' => e($currentMethod->getLabel()), 'instruction' => e($instruction), 'number' => e($account['number']), 'type' => e(__($account['type']))]) !!}</li>
+                        <li>{{ __('Send the amount in taka.') }}</li>
+                        <li>{{ __('Enter what you sent below, with the TrxID from the confirmation SMS.') }}</li>
+                    </ol>
+
+                    <form wire:submit="submit" class="mt-5 space-y-5">
+                        <flux:input wire:model.live.debounce.400ms="amountBdt" :label="__('Amount sent (BDT)')" inputmode="decimal" required />
+                        @if (! $payOnline && $this->previewUsd !== null)
+                            <flux:text>{{ __('You will receive :amount in your wallet.', ['amount' => '$'.$this->previewUsd]) }}</flux:text>
+                        @endif
+                        <flux:input wire:model="senderNumber" :label="__('Your :method number', ['method' => $currentMethod->getLabel()])" placeholder="01XXXXXXXXX" inputmode="numeric" maxlength="11" required />
+                        <flux:input wire:model="trxId" :label="__('TrxID')" maxlength="20" required />
+                        <flux:button type="submit" :variant="$payOnline ? 'filled' : 'primary'">{{ __('Submit deposit') }}</flux:button>
+                    </form>
+                </details>
+            @endif
         @endif
 
     @else
@@ -73,9 +96,16 @@
                     <li class="space-y-1 py-3 text-sm">
                         <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                             <span class="font-medium">{{ $deposit->method->getLabel() }} · {{ $deposit->amount_bdt }} BDT → ${{ $deposit->amount_usd }}</span>
-                            <flux:badge size="sm" :color="match ($deposit->status) { App\Enums\DepositStatus::Approved => 'green', App\Enums\DepositStatus::Rejected => 'red', default => 'amber' }">{{ $deposit->status->getLabel() }}</flux:badge>
+                            <flux:badge size="sm" :color="match ($deposit->status) { App\Enums\DepositStatus::Approved => 'green', App\Enums\DepositStatus::Rejected => 'red', default => 'amber' }">{{ $deposit->source === 'piprapay' && $deposit->status === App\Enums\DepositStatus::Pending ? __('Waiting for payment') : $deposit->status->getLabel() }}</flux:badge>
                         </div>
-                        <p class="text-zinc-500 dark:text-zinc-400">TrxID <span class="font-mono">{{ $deposit->trx_id }}</span> · <x-local-time :at="$deposit->created_at" format="j M Y, g:i A" /></p>
+                        <p class="text-zinc-500 dark:text-zinc-400">
+                            @if ($deposit->trx_id)
+                                TrxID <span class="font-mono">{{ $deposit->trx_id }}</span> ·
+                            @else
+                                {{ __('Paid online') }} ·
+                            @endif
+                            <x-local-time :at="$deposit->created_at" format="j M Y, g:i A" />
+                        </p>
                         @if ($deposit->status === App\Enums\DepositStatus::Rejected && $deposit->admin_note)
                             <p class="text-zinc-600 dark:text-zinc-400">{{ __('Reason: :reason', ['reason' => $deposit->admin_note]) }}</p>
                         @endif

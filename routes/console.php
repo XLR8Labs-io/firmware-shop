@@ -4,6 +4,7 @@ use App\Enums\CryptoInvoiceStatus;
 use App\Models\CryptoInvoice;
 use App\Models\DownloadToken;
 use App\Services\Crypto\TronScanner;
+use App\Services\Deposits\PipraPayGateway;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -28,3 +29,13 @@ Schedule::call(fn () => CryptoInvoice::query()
     ->update(['status' => CryptoInvoiceStatus::Expired]))
     ->everyFiveMinutes()
     ->name('crypto-expire');
+
+// PipraPay tries a webhook only a limited number of times, so unfinished online payments are re-checked here.
+Schedule::call(function (): void {
+    if (PipraPayGateway::isEnabled()) {
+        app(PipraPayGateway::class)->confirmOpenDeposits();
+    }
+})
+    ->everyTenMinutes()
+    ->name('piprapay-check-open-payments')
+    ->withoutOverlapping();

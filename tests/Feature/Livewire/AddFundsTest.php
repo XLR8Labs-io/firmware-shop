@@ -3,6 +3,7 @@
 use App\Livewire\AddFunds;
 use App\Models\MfsDeposit;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
@@ -75,4 +76,26 @@ test('a shortfall from the Buy box fills in the taka amount', function () {
         ->actingAs(User::factory()->create())
         ->test(AddFunds::class)
         ->assertSet('amountBdt', '3063');
+});
+
+test('with PipraPay set up, a customer pays online and is sent to PipraPay', function () {
+    fakePipraPay(['pay.test/api/checkout/redirect' => Http::response(['pp_id' => 'PP777', 'pp_url' => 'https://pay.test/payment/PP777'])]);
+
+    Livewire::actingAs(User::factory()->create())
+        ->test(AddFunds::class)
+        ->assertSee('Pay online')
+        ->assertSee('Or send it yourself and enter the TrxID')
+        ->set('amountBdt', '1225')
+        ->set('senderNumber', '01712345678')
+        ->call('payOnline')
+        ->assertRedirect('https://pay.test/payment/PP777');
+
+    expect(MfsDeposit::query()->sole()->gateway_payment_id)->toBe('PP777');
+});
+
+test('without PipraPay set up, only the manual form is offered', function () {
+    Livewire::actingAs(User::factory()->create())
+        ->test(AddFunds::class)
+        ->assertDontSee('Pay online')
+        ->assertSee('Submit deposit');
 });

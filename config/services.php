@@ -45,6 +45,15 @@ return [
         'admin_chat_id' => env('TELEGRAM_ADMIN_CHAT_ID'),
     ],
 
+    /*
+     * The store's own PipraPay (v3) install for automatic bKash and Nagad payments.
+     * Leave either value empty to offer manual deposits only.
+     */
+    'piprapay' => [
+        'base_url' => env('PIPRAPAY_BASE_URL'),
+        'api_key' => env('PIPRAPAY_API_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

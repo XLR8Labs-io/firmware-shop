@@ -2,6 +2,8 @@
 
 ## 27 November 2026
 
+- Customers can pay with bKash or Nagad online. They enter the amount, pay on the store's payment page, and the money is in their wallet as soon as the payment is confirmed, with no waiting for an admin. Sending money and entering the TrxID by hand still works as before.
+- A payment is never credited twice, whether it comes in online, by hand, or both. Online payments that don't match what was ordered are held for an admin, who gets a Telegram alert.
 - The store can post announcements. They appear on the home page and on an Announcements page, and can also scroll in the notice bar at the top of every page. An announcement can be scheduled for a later time.
 - The site has a blog, with cover images, and pages such as About us, Terms or How to buy. Published pages are linked at the bottom of every page. Everything is written and published from the admin panel.
 - Visitors can ask for a file the store doesn't have yet. Signed-in customers see their requests and the store's replies on the same page. Admins see open requests, with a count in the menu, and can reply to them.
